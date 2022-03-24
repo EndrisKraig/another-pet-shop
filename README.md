@@ -1,4 +1,4 @@
-# Just another pet shop
+# Just another pet store
 Nothing to see here yet
 
-TODO add description someday...
+TODO add description someday..
