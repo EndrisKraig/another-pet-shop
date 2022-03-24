@@ -1,0 +1,17 @@
+version: '3.1'
+
+services:
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: supercat
+      POSTGRES_PASSWORD: meow_meow
+    
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080
