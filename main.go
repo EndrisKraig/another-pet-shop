@@ -2,25 +2,33 @@ package main
 
 import (
 	"net/http"
+	"strconv"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"playground.io/another-pet-store/db"
+	"playground.io/another-pet-store/model"
 )
-
-type cat struct {
-	ID       string  `json:"id"`
-	Nickname string  `json:"nickname"`
-	Breed    string  `json:"breed"`
-	Price    float64 `json:"price"`
-}
-
-var cats = []cat{
-	{ID: "1", Nickname: "Fluffy", Breed: "Persian", Price: 100},
-	{ID: "2", Nickname: "Claus", Breed: "Sphynx", Price: 100},
-	{ID: "3", Nickname: "Desmond", Breed: "Siberian", Price: 100},
-}
 
 func main() {
 	router := gin.Default()
+	// CORS for https://foo.com and https://github.com origins, allowing:
+	// - PUT and PATCH methods
+	// - Origin header
+	// - Credentials share
+	// - Preflight requests cached for 12 hours
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST"},
+		AllowHeaders:     []string{"Origin"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		AllowOriginFunc: func(origin string) bool {
+			return origin == "https://github.com"
+		},
+		MaxAge: 12 * time.Hour,
+	}))
 	router.GET("/cats", getCats)
 	router.GET("/cats/:id", getCatByID)
 	router.POST("/cats", postCats)
@@ -28,28 +36,29 @@ func main() {
 }
 
 func getCats(c *gin.Context) {
+	var cats []model.Cat = db.FindAllCats()
 	c.IndentedJSON(http.StatusOK, cats)
 }
 
 func postCats(c *gin.Context) {
-	var newCat cat
+	var newCat model.Cat
 
 	if err := c.BindJSON(&newCat); err != nil {
 		return
 	}
 
-	cats = append(cats, newCat)
+	db.AddCat(&newCat)
 	c.IndentedJSON(http.StatusCreated, newCat)
 }
 
 func getCatByID(c *gin.Context) {
 	id := c.Param("id")
-
-	for _, cat := range cats {
-		if cat.ID == id {
-			c.IndentedJSON(http.StatusOK, cat)
-			return
-		}
+	intId, err := strconv.Atoi(id)
+	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "cat not found"})
+		return
 	}
-	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "cat not found"})
+	var cat model.Cat = db.FindCatById(intId)
+	c.IndentedJSON(http.StatusOK, cat)
+
 }
