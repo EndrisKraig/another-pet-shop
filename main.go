@@ -7,31 +7,45 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"playground.io/another-pet-store/controller"
 	"playground.io/another-pet-store/db"
 	"playground.io/another-pet-store/model"
+	"playground.io/another-pet-store/service"
 )
 
 func main() {
 	router := gin.Default()
-	// CORS for https://foo.com and https://github.com origins, allowing:
-	// - PUT and PATCH methods
-	// - Origin header
-	// - Credentials share
-	// - Preflight requests cached for 12 hours
+
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"},
-		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST"},
-		AllowHeaders:     []string{"Origin"},
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
-			return origin == "https://github.com"
+			return origin == "http://localhost:3000"
 		},
 		MaxAge: 12 * time.Hour,
 	}))
 	router.GET("/cats", getCats)
 	router.GET("/cats/:id", getCatByID)
 	router.POST("/cats", postCats)
+
+	var loginService service.LoginService = service.StaticLoginService()
+	var jwtService service.JWTService = service.JWTAuthService()
+	var loginController controller.LoginController = controller.LoginHandler(loginService, jwtService)
+
+	router.POST("/login", func(ctx *gin.Context) {
+		token := loginController.Login(ctx)
+		if token != "" {
+			ctx.JSON(http.StatusOK, gin.H{
+				"token": token,
+			})
+		} else {
+			ctx.JSON(http.StatusUnauthorized, nil)
+		}
+	})
+
 	router.Run("localhost:8080")
 }
 
