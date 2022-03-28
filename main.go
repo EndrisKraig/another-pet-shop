@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"playground.io/another-pet-store/controller"
 	"playground.io/another-pet-store/db"
+	"playground.io/another-pet-store/middleware"
 	"playground.io/another-pet-store/model"
 	"playground.io/another-pet-store/service"
 )
@@ -46,7 +47,14 @@ func main() {
 		}
 	})
 
+	router.GET("/me", middleware.AuthorizeJWT(), me)
+
 	router.Run("localhost:8080")
+}
+
+func me(c *gin.Context) {
+	i, _ := middleware.Me(c)
+	c.IndentedJSON(http.StatusOK, i)
 }
 
 func getCats(c *gin.Context) {
