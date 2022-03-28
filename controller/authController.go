@@ -1,11 +1,15 @@
 package controller
 
 import (
+	"net/http"
+
 	"playground.io/another-pet-store/dto"
 	"playground.io/another-pet-store/service"
 
 	"github.com/gin-gonic/gin"
 )
+
+var LoginControllerInstance LoginController
 
 //login contorller interface
 type LoginController interface {
@@ -37,4 +41,15 @@ func (controller *loginController) Login(ctx *gin.Context) string {
 
 	}
 	return ""
+}
+
+func GetToken(ctx *gin.Context) {
+	token := LoginControllerInstance.Login(ctx)
+	if token != "" {
+		ctx.JSON(http.StatusOK, gin.H{
+			"token": token,
+		})
+	} else {
+		ctx.JSON(http.StatusUnauthorized, nil)
+	}
 }
