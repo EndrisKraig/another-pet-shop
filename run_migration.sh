@@ -1,1 +1,5 @@
-migrate -path scripts/migration -database "postgres://supercat:meow_meow@localhost:5432/supercat?sslmode=disable" -verbose up
+if [ ! -f .env ]
+then
+  export $(cat .env | xargs)
+fi
+migrate -path scripts/migration -database ${DB_URL} -verbose up

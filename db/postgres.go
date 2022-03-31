@@ -69,7 +69,7 @@ func FindAllCats() []model.Cat {
 //VALUES ('fluffy', 'siberian', '1000');
 
 func getConnection() *pgx.Conn {
-	conn, err := pgx.Connect(context.Background(), "postgres://supercat:meow_meow@localhost:5432/supercat")
+	conn, err := pgx.Connect(context.Background(), os.Getenv("DB_URL"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)

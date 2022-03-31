@@ -1,6 +1,17 @@
 package main
 
-import "playground.io/another-pet-store/controller"
+import (
+	"log"
+
+	"github.com/joho/godotenv"
+	"playground.io/another-pet-store/controller"
+)
+
+func init() {
+	if err := godotenv.Load(); err != nil {
+		log.Print("No .env file found")
+	}
+}
 
 func main() {
 	controller.Init()
