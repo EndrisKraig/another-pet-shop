@@ -1,0 +1,1 @@
+migrate -path scripts/migration -database "postgres://supercat:meow_meow@localhost:5432/supercat?sslmode=disable" -verbose up
