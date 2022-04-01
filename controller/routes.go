@@ -30,7 +30,9 @@ func Init() {
 	router.GET("/cats/:id", GetCatByID)
 	router.POST("/cats", PostCats)
 
-	var loginService service.LoginService = service.StaticLoginService()
+	router.POST("/user", PostUser)
+
+	var loginService service.LoginService = service.DbLoginService()
 	var jwtService service.JWTService = service.JWTAuthService()
 	//TODO how to properly deal with services?
 	LoginControllerInstance = LoginHandler(loginService, jwtService)

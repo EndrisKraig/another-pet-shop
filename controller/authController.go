@@ -35,7 +35,8 @@ func (controller *loginController) Login(ctx *gin.Context) string {
 	if err != nil {
 		return "no data found"
 	}
-	isUserAuthenticated := controller.loginService.LoginUser(credential.Email, credential.Password)
+	var user = &dto.User{Username: credential.Email, Password: credential.Password}
+	isUserAuthenticated := controller.loginService.LoginUser(user)
 	if isUserAuthenticated {
 		return controller.jWtService.GenerateToken(credential.Email, true)
 

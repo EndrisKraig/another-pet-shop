@@ -1,21 +1,24 @@
 package service
 
+import (
+	"fmt"
+
+	"playground.io/another-pet-store/dto"
+)
+
 type LoginService interface {
-	LoginUser(email string, password string) bool
+	LoginUser(user *dto.User) bool
 }
 
-type loginInformation struct {
-	email    string
-	password string
+type localUser dto.User
+
+func DbLoginService() LoginService {
+	return &localUser{}
 }
 
-func StaticLoginService() LoginService {
-	return &loginInformation{
-		email:    "some@mail.com",
-		password: "pass",
-	}
-}
-
-func (info *loginInformation) LoginUser(email string, password string) bool {
-	return info.email == email && info.password == password
+func (out *localUser) LoginUser(user *dto.User) bool {
+	var dbUser = FindUserByUsername(user.Username)
+	var isIt = CheckPasswordHash(user.Password, dbUser.Hash)
+	fmt.Print("Login and pass are ", isIt)
+	return isIt
 }
