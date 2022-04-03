@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	"playground.io/another-pet-store/model"
 )
@@ -16,6 +17,13 @@ func FindCatById(ID int) model.Cat {
 	var id int64
 	var breed string
 	var price int32
+	/* SELECT *, count(*) OVER() AS full_count
+	   FROM   tbl
+	   WHERE
+	   ORDER  BY col1
+	   OFFSET ?
+	   LIMIT  ? */
+
 	err := conn.QueryRow(context.Background(), "select id, nickname, breed, price from cats where id=$1", ID).Scan(&id, &nickname, &breed, &price)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
@@ -36,10 +44,16 @@ func AddCat(cat *model.Cat) {
 
 }
 
-func FindAllCats() []model.Cat {
+func FindAllCats(page string, limit string) ([]model.Cat, int64) {
 	var conn = getConnection()
 	defer conn.Close(context.Background())
-	rows, err := conn.Query(context.Background(), "select id, nickname, breed, price from public.cats")
+
+	pageInt, _ := strconv.ParseInt(page, 10, 64)
+	limitInt, _ := strconv.ParseInt(limit, 10, 64)
+	//TODO move pagination logic to service
+	offset := pageInt*limitInt - limitInt
+
+	rows, err := conn.Query(context.Background(), "SELECT id, nickname, breed, price, count(*) OVER() AS full_count FROM cats ORDER BY id DESC OFFSET $1 LIMIT $2", offset, limitInt)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
@@ -47,6 +61,8 @@ func FindAllCats() []model.Cat {
 	}
 
 	var cats []model.Cat
+
+	var full_count int64 = 0
 
 	for rows.Next() {
 		values, err := rows.Values()
@@ -58,8 +74,8 @@ func FindAllCats() []model.Cat {
 		nickname := values[1].(string)
 		breed := values[2].(string)
 		price := values[3].(int32)
-
+		full_count = values[4].(int64)
 		cats = append(cats, model.Cat{ID: id, Nickname: nickname, Breed: breed, Price: price})
 	}
-	return cats[:]
+	return cats[:], full_count
 }
