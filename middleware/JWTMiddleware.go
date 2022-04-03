@@ -18,11 +18,17 @@ func AuthorizeJWT() gin.HandlerFunc {
 
 func Me(c *gin.Context) (jwt.MapClaims, error) {
 	authHeader := c.GetHeader("Authorization")
+	fmt.Println(authHeader)
 	if authHeader == "" {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return nil, fmt.Errorf("No auth header!")
 	}
 	token, err := service.JWTAuthService().ValidateToken(authHeader)
+	if err != nil {
+		fmt.Println(err)
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return nil, fmt.Errorf("No auth header!")
+	}
 	if token.Valid {
 		claims := token.Claims.(jwt.MapClaims)
 		fmt.Println(claims)
