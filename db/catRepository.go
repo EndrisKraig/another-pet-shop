@@ -2,10 +2,7 @@ package db
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"os"
-	"strconv"
 
 	"playground.io/another-pet-store/model"
 )
@@ -26,38 +23,29 @@ func FindCatById(ID int) model.Cat {
 
 	err := conn.QueryRow(context.Background(), "select id, nickname, breed, price from cats where id=$1", ID).Scan(&id, &nickname, &breed, &price)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-		os.Exit(1)
+		log.Fatal("QueryRow failed: $1\n", err)
 	}
 	return model.Cat{ID: id, Nickname: nickname, Breed: breed, Price: price}
 }
 
-func AddCat(cat *model.Cat) {
+func AddCat(cat model.Cat) {
 	var conn = getConnection()
 	defer conn.Close(context.Background())
 	_, err := conn.Exec(context.Background(), "INSERT INTO cats (nickname, breed, price) VALUES ($1, $2, $3)", cat.Nickname, cat.Breed, cat.Price)
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-		os.Exit(1)
+		log.Fatal("QueryRow failed: $1\n", err)
 	}
-
 }
 
-func FindAllCats(page string, limit string) ([]model.Cat, int64) {
+func FindAllCats(offset int, limit int) ([]model.Cat, int) {
 	var conn = getConnection()
 	defer conn.Close(context.Background())
 
-	pageInt, _ := strconv.ParseInt(page, 10, 64)
-	limitInt, _ := strconv.ParseInt(limit, 10, 64)
-	//TODO move pagination logic to service
-	offset := pageInt*limitInt - limitInt
-
-	rows, err := conn.Query(context.Background(), "SELECT id, nickname, breed, price, count(*) OVER() AS full_count FROM cats ORDER BY id DESC OFFSET $1 LIMIT $2", offset, limitInt)
+	rows, err := conn.Query(context.Background(), "SELECT id, nickname, breed, price, count(*) OVER() AS full_count FROM cats ORDER BY id DESC OFFSET $1 LIMIT $2", offset, limit)
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-		os.Exit(1)
+		log.Fatal("QueryRow failed: $1\n", err)
 	}
 
 	var cats []model.Cat
@@ -77,5 +65,5 @@ func FindAllCats(page string, limit string) ([]model.Cat, int64) {
 		full_count = values[4].(int64)
 		cats = append(cats, model.Cat{ID: id, Nickname: nickname, Breed: breed, Price: price})
 	}
-	return cats[:], full_count
+	return cats[:], int(full_count)
 }

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"playground.io/another-pet-store/dto"
+	"playground.io/another-pet-store/middleware"
 	"playground.io/another-pet-store/service"
 
 	"github.com/gin-gonic/gin"
@@ -21,8 +22,7 @@ type loginController struct {
 	jWtService   service.JWTService
 }
 
-func LoginHandler(loginService service.LoginService,
-	jWtService service.JWTService) LoginController {
+func LoginHandler(loginService service.LoginService, jWtService service.JWTService) LoginController {
 	return &loginController{
 		loginService: loginService,
 		jWtService:   jWtService,
@@ -53,4 +53,9 @@ func GetToken(ctx *gin.Context) {
 	} else {
 		ctx.JSON(http.StatusUnauthorized, nil)
 	}
+}
+
+func Me(c *gin.Context) {
+	i, _ := middleware.Me(c)
+	c.IndentedJSON(http.StatusOK, i)
 }
