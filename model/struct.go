@@ -5,4 +5,8 @@ type Cat struct {
 	Nickname string
 	Breed    string
 	Price    int32
+	CreateAt string
+	ImageUrl string
+	Title    string
+	Age      int32
 }

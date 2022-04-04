@@ -10,4 +10,8 @@ type Cat struct {
 	Nickname string `json:"nickname"`
 	Breed    string `json:"breed"`
 	Price    int32  `json:"price"`
+	CreateAt string `json:"createAt"`
+	ImageUrl string `json:"imageUrl"`
+	Title    string `json:"title"`
+	Age      int32  `json:"age"`
 }

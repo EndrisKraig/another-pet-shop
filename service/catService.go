@@ -30,7 +30,7 @@ func (c *CatServiceInstance) FindAllCats(pageStr, limitStr string) dto.CatsRespo
 	cats, catsNum := db.FindAllCats(offset, limit)
 	var dtoCats []dto.Cat
 	for _, cat := range cats {
-		dtoCats = append(dtoCats, dto.Cat{ID: cat.ID, Nickname: cat.Nickname, Breed: cat.Breed, Price: cat.Price})
+		dtoCats = append(dtoCats, dto.Cat{ID: cat.ID, Nickname: cat.Nickname, Breed: cat.Breed, Price: cat.Price, CreateAt: cat.CreateAt, ImageUrl: cat.ImageUrl, Title: cat.Title, Age: cat.Age})
 	}
 	var maxPage = 0
 	if catsNum%limit == 0 {

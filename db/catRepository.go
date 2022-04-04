@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"log"
+	"time"
 
 	"playground.io/another-pet-store/model"
 )
@@ -14,12 +15,6 @@ func FindCatById(ID int) model.Cat {
 	var id int64
 	var breed string
 	var price int32
-	/* SELECT *, count(*) OVER() AS full_count
-	   FROM   tbl
-	   WHERE
-	   ORDER  BY col1
-	   OFFSET ?
-	   LIMIT  ? */
 
 	err := conn.QueryRow(context.Background(), "select id, nickname, breed, price from cats where id=$1", ID).Scan(&id, &nickname, &breed, &price)
 	if err != nil {
@@ -42,7 +37,7 @@ func FindAllCats(offset int, limit int) ([]model.Cat, int) {
 	var conn = getConnection()
 	defer conn.Close(context.Background())
 
-	rows, err := conn.Query(context.Background(), "SELECT id, nickname, breed, price, count(*) OVER() AS full_count FROM cats ORDER BY id DESC OFFSET $1 LIMIT $2", offset, limit)
+	rows, err := conn.Query(context.Background(), "SELECT id, nickname, breed, price, create_at, image_url, title, age, count(*) OVER() AS full_count FROM cats ORDER BY id DESC OFFSET $1 LIMIT $2", offset, limit)
 
 	if err != nil {
 		log.Fatal("QueryRow failed: $1\n", err)
@@ -62,8 +57,12 @@ func FindAllCats(offset int, limit int) ([]model.Cat, int) {
 		nickname := values[1].(string)
 		breed := values[2].(string)
 		price := values[3].(int32)
-		full_count = values[4].(int64)
-		cats = append(cats, model.Cat{ID: id, Nickname: nickname, Breed: breed, Price: price})
+		createAt := values[4].(time.Time)
+		imageUrl := values[5].(string)
+		title := values[6].(string)
+		age := values[7].(int32)
+		full_count = values[8].(int64)
+		cats = append(cats, model.Cat{ID: id, Nickname: nickname, Breed: breed, Price: price, CreateAt: createAt.Format("2006-01-02 15:04:05"), ImageUrl: imageUrl, Title: title, Age: age})
 	}
 	return cats[:], int(full_count)
 }
