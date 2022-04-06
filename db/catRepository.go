@@ -2,13 +2,13 @@ package db
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"time"
 
 	"playground.io/another-pet-store/model"
 )
 
-func FindCatById(ID int) model.Cat {
+func FindCatById(ID int) (model.Cat, error) {
 	var conn = getConnection()
 	defer conn.Close(context.Background())
 	var nickname string
@@ -18,29 +18,30 @@ func FindCatById(ID int) model.Cat {
 
 	err := conn.QueryRow(context.Background(), "select id, nickname, breed, price from cats where id=$1", ID).Scan(&id, &nickname, &breed, &price)
 	if err != nil {
-		log.Fatal("QueryRow failed: $1\n", err)
+		return model.Cat{}, fmt.Errorf("Error find cat with id %d: %w", id, err)
 	}
-	return model.Cat{ID: id, Nickname: nickname, Breed: breed, Price: price}
+	return model.Cat{ID: id, Nickname: nickname, Breed: breed, Price: price}, nil
 }
 
-func AddCat(cat model.Cat) {
+func AddCat(cat model.Cat) error {
 	var conn = getConnection()
 	defer conn.Close(context.Background())
 	_, err := conn.Exec(context.Background(), "INSERT INTO cats (nickname, breed, price) VALUES ($1, $2, $3)", cat.Nickname, cat.Breed, cat.Price)
 
 	if err != nil {
-		log.Fatal("QueryRow failed: $1\n", err)
+		return fmt.Errorf("Error execute insert command: %w", err)
 	}
+	return nil
 }
 
-func FindAllCats(offset int, limit int) ([]model.Cat, int) {
+func FindAllCats(offset int, limit int) ([]model.Cat, int, error) {
 	var conn = getConnection()
 	defer conn.Close(context.Background())
 
 	rows, err := conn.Query(context.Background(), "SELECT id, nickname, breed, price, create_at, image_url, title, age, count(*) OVER() AS full_count FROM cats ORDER BY id DESC OFFSET $1 LIMIT $2", offset, limit)
 
 	if err != nil {
-		log.Fatal("QueryRow failed: $1\n", err)
+		return nil, 0, fmt.Errorf("Error during select command %w", err)
 	}
 
 	var cats []model.Cat
@@ -50,7 +51,7 @@ func FindAllCats(offset int, limit int) ([]model.Cat, int) {
 	for rows.Next() {
 		values, err := rows.Values()
 		if err != nil {
-			log.Fatal("error while iterating dataset")
+			return nil, 0, fmt.Errorf("Error during obtaining result rows values: %w", err)
 		}
 
 		id := values[0].(int64)
@@ -64,5 +65,5 @@ func FindAllCats(offset int, limit int) ([]model.Cat, int) {
 		full_count = values[8].(int64)
 		cats = append(cats, model.Cat{ID: id, Nickname: nickname, Breed: breed, Price: price, CreateAt: createAt.Format("2006-01-02 15:04:05"), ImageUrl: imageUrl, Title: title, Age: age})
 	}
-	return cats[:], int(full_count)
+	return cats[:], int(full_count), nil
 }

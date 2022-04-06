@@ -22,7 +22,11 @@ func GetCats(c *gin.Context) {
 		page = queryParams["page"][0]
 	}
 
-	var catResponse = catService.FindAllCats(page, limit)
+	catResponse, err := catService.FindAllCats(page, limit)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
 	c.IndentedJSON(http.StatusOK, catResponse)
 }
 
@@ -30,17 +34,28 @@ func PostCats(c *gin.Context) {
 	var newCat dto.Cat
 
 	if err := c.BindJSON(&newCat); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Wrong body message"})
 		return
 	}
 
-	newCat = catService.AddCat(&newCat)
+	err := catService.AddCat(&newCat)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
 	c.IndentedJSON(http.StatusCreated, newCat)
 }
 
 func GetCatByID(c *gin.Context) {
 	id := c.Param("id")
 
-	var cat dto.Cat = catService.FindCatById(id)
+	cat, err := catService.FindCatById(id)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
 	c.IndentedJSON(http.StatusOK, cat)
 
 }
