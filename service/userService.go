@@ -11,15 +11,22 @@ import (
 )
 
 type UserService interface {
-	RegisterUser(dto.User)
-	FindUserByUsername(username string) model.User
+	RegisterUser(user *dto.User)
+	FindUserByUsername(username string) *model.User
 }
 
-func FindUserByUsername(username string) *model.User {
+type SimpleUserService struct {
+}
+
+func CreateUserService() UserService {
+	return &SimpleUserService{}
+}
+
+func (s *SimpleUserService) FindUserByUsername(username string) *model.User {
 	return db.FindUser(username)
 }
 
-func RegisterUser(userDto *dto.User) {
+func (s *SimpleUserService) RegisterUser(userDto *dto.User) {
 	fmt.Println(userDto.Password)
 	hash, err := hashPassword(userDto.Password)
 	if err != nil {
@@ -34,10 +41,4 @@ func RegisterUser(userDto *dto.User) {
 func hashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
-}
-
-func CheckPasswordHash(password, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	fmt.Println(err)
-	return err == nil
 }

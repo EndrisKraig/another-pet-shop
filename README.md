@@ -24,10 +24,9 @@ If there is problem with dependencies **go mod tidy** can help
 
 # Features and improvements
 
-+ Proper error handling, without stop the entire application
 + Add DI framework
 + Make pet store an actual pet store, not just cat-store - e.g. add other animals
 + Recheck JWT security
-+ Do not import user service in controller, it must be under auth service or vice versa
 + Tests...
++ Swagger
 + More things to come

@@ -10,15 +10,15 @@ import (
 )
 
 type CatService interface {
-	FindCatById(id string) model.Cat
-	FindAllCats(page, limit string) dto.CatsResponse
-	AddCat(cat *dto.Cat) dto.Cat
+	FindCatById(id string) (*dto.Cat, error)
+	FindAllCats(page, limit int) (*dto.CatsResponse, error)
+	AddCat(cat *dto.Cat) error
 }
 
 type CatServiceInstance struct {
 }
 
-func (c *CatServiceInstance) FindCatById(id string) (*dto.Cat, error) {
+func (c CatServiceInstance) FindCatById(id string) (*dto.Cat, error) {
 	idAsInt, err := strconv.Atoi(id)
 	if err != nil {
 		return nil, fmt.Errorf("Couldn't pars %s as string: %w", id, err)
@@ -30,15 +30,7 @@ func (c *CatServiceInstance) FindCatById(id string) (*dto.Cat, error) {
 	return &dto.Cat{ID: cat.ID, Nickname: cat.Nickname, Breed: cat.Breed, Price: cat.Price}, nil
 }
 
-func (c *CatServiceInstance) FindAllCats(pageStr, limitStr string) (*dto.CatsResponse, error) {
-	page, err := strconv.Atoi(pageStr)
-	if err != nil {
-		return nil, fmt.Errorf("Page is not a correct number %s: %w", pageStr, err)
-	}
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil {
-		return nil, fmt.Errorf("Limit is not correct int value %s: %w", limitStr, err)
-	}
+func (c CatServiceInstance) FindAllCats(page, limit int) (*dto.CatsResponse, error) {
 
 	// page starts from 1, offset from 0
 	var offset = (page - 1) * limit
@@ -61,7 +53,7 @@ func (c *CatServiceInstance) FindAllCats(pageStr, limitStr string) (*dto.CatsRes
 	return &dto.CatsResponse{Cats: dtoCats, MaxPage: maxPage}, nil
 }
 
-func (c *CatServiceInstance) AddCat(cat *dto.Cat) error {
+func (c CatServiceInstance) AddCat(cat *dto.Cat) error {
 	var newCat model.Cat = model.Cat{Nickname: cat.Nickname, Breed: cat.Breed, Price: cat.Price}
 	err := db.AddCat(newCat)
 	if err != nil {

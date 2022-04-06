@@ -24,20 +24,22 @@ func Init() {
 		MaxAge: 12 * time.Hour,
 	}))
 
-	router.POST("/login", GetToken)
+	var catService service.CatService = service.CatServiceInstance{}
+	var catController = &SimpleCatController{catService: catService}
 
-	router.GET("/cats", GetCats)
-	router.GET("/cats/:id", GetCatByID)
-	router.POST("/cats", PostCats)
+	router.GET("/cats", catController.GetCats)
+	router.GET("/cats/:id", catController.FindCatByID)
+	router.POST("/cats", catController.AddCat)
 
-	router.POST("/user", PostUser)
-
-	var loginService service.LoginService = service.DbLoginService()
+	var userService service.UserService = service.CreateUserService()
+	var loginService service.LoginService = service.DbLoginService(userService)
 	var jwtService service.JWTService = service.JWTAuthService()
-	//TODO how to properly deal with services?
-	LoginControllerInstance = LoginHandler(loginService, jwtService)
 
-	router.GET("/me", middleware.AuthorizeJWT(), Me)
+	loginController := LoginHandler(loginService, jwtService)
+
+	router.POST("/login", loginController.Login)
+	router.POST("/user", loginController.AddUser)
+	router.GET("/me", middleware.AuthorizeJWT(), loginController.Me)
 
 	router.Run("localhost:8080")
 }

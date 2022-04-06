@@ -12,50 +12,54 @@ import (
 
 var LoginControllerInstance LoginController
 
-//login contorller interface
 type LoginController interface {
-	Login(ctx *gin.Context) string
+	Login(ctx *gin.Context)
+	AddUser(ctx *gin.Context)
+	Me(ctx *gin.Context)
 }
 
 type loginController struct {
 	loginService service.LoginService
 	jWtService   service.JWTService
+	userService  service.UserService
 }
 
-func LoginHandler(loginService service.LoginService, jWtService service.JWTService) LoginController {
+func LoginHandler(loginService service.LoginService, jWtService service.JWTService) *loginController {
 	return &loginController{
 		loginService: loginService,
 		jWtService:   jWtService,
 	}
 }
 
-func (controller *loginController) Login(ctx *gin.Context) string {
+func (controller *loginController) Login(c *gin.Context) {
 	var credential dto.LoginCredentials
-	err := ctx.ShouldBind(&credential)
+	err := c.ShouldBind(&credential)
 	if err != nil {
-		return "no data found"
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Wrong request body"})
+		return
 	}
 	var user = &dto.User{Username: credential.Email, Password: credential.Password}
 	isUserAuthenticated := controller.loginService.LoginUser(user)
 	if isUserAuthenticated {
-		return controller.jWtService.GenerateToken(credential.Email, true)
-
+		var token = controller.jWtService.GenerateToken(user.Username, true)
+		c.IndentedJSON(http.StatusOK, gin.H{"token": token})
+		return
 	}
-	return ""
+	c.JSON(http.StatusUnauthorized, gin.H{"message": "Authentication failed"})
 }
 
-func GetToken(ctx *gin.Context) {
-	token := LoginControllerInstance.Login(ctx)
-	if token != "" {
-		ctx.JSON(http.StatusOK, gin.H{
-			"token": token,
-		})
-	} else {
-		ctx.JSON(http.StatusUnauthorized, nil)
-	}
-}
-
-func Me(c *gin.Context) {
+func (controller *loginController) Me(c *gin.Context) {
 	i, _ := middleware.Me(c)
 	c.IndentedJSON(http.StatusOK, i)
+}
+
+func (controller *loginController) AddUser(c *gin.Context) {
+	var newUser dto.User
+	if err := c.BindJSON(&newUser); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Wrong request body"})
+		return
+	}
+
+	controller.loginService.NewUser(&newUser)
+	c.IndentedJSON(http.StatusCreated, newUser)
 }
