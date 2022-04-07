@@ -9,4 +9,5 @@ type Cat struct {
 	ImageUrl string
 	Title    string
 	Age      int32
+	BuyerId  int64
 }

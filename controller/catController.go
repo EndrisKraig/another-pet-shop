@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -13,6 +14,7 @@ type CatController interface {
 	GetCats(c *gin.Context)
 	AddCat(c *gin.Context)
 	FindCatByID(c *gin.Context)
+	UpdateCat(c *gin.Context)
 }
 
 type SimpleCatController struct {
@@ -79,4 +81,23 @@ func (catController *SimpleCatController) FindCatByID(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusOK, cat)
 
+}
+
+func (controller *SimpleCatController) UpdateCat(c *gin.Context) {
+	id := c.Param("id")
+	authHeader := c.GetHeader("Authorization")
+	fmt.Println("Header: " + authHeader)
+	if authHeader == "" {
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+	var catService = controller.catService
+	err := catService.UpdateCat(id, authHeader)
+	if err != nil {
+		fmt.Println(err)
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, "OK")
 }

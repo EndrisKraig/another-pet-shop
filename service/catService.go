@@ -13,9 +13,15 @@ type CatService interface {
 	FindCatById(id string) (*dto.Cat, error)
 	FindAllCats(page, limit int) (*dto.CatsResponse, error)
 	AddCat(cat *dto.Cat) error
+	UpdateCat(cat string, token string) error
 }
 
 type CatServiceInstance struct {
+	profileService ProfileService
+}
+
+func CreateCatService(profileService ProfileService) CatService {
+	return &CatServiceInstance{profileService: profileService}
 }
 
 func (c CatServiceInstance) FindCatById(id string) (*dto.Cat, error) {
@@ -27,7 +33,7 @@ func (c CatServiceInstance) FindCatById(id string) (*dto.Cat, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Error during find cat with id %d: %w", idAsInt, err)
 	}
-	return &dto.Cat{ID: cat.ID, Nickname: cat.Nickname, Breed: cat.Breed, Price: cat.Price}, nil
+	return &dto.Cat{ID: cat.ID, Nickname: cat.Nickname, Breed: cat.Breed, Price: cat.Price, ImageUrl: cat.ImageUrl, Age: cat.Age, Title: cat.Title}, nil
 }
 
 func (c CatServiceInstance) FindAllCats(page, limit int) (*dto.CatsResponse, error) {
@@ -60,5 +66,28 @@ func (c CatServiceInstance) AddCat(cat *dto.Cat) error {
 		return fmt.Errorf("Couldn't add cat: %w", err)
 	}
 	// cat.ID = addedCat.ID
+	return nil
+}
+
+func (service CatServiceInstance) UpdateCat(catId string, token string) error {
+	profile, err := service.profileService.GetProfile(token)
+	if err != nil {
+		return fmt.Errorf("Error during updating cat: %w", err)
+	}
+	fmt.Println("CatId: " + catId)
+	cat, err := service.FindCatById(catId)
+	if err != nil {
+		return fmt.Errorf("No cat with id %s: %v", catId, err)
+	}
+	//TODO transaction
+	modelCat := model.Cat{ID: cat.ID, Nickname: cat.Nickname, Breed: cat.Breed, Price: cat.Price, BuyerId: profile.Id}
+	err = db.UpdateCat(modelCat)
+	if err != nil {
+		return fmt.Errorf("Cat wasn't sold: %w", err)
+	}
+	err = service.profileService.ChangeBalance(float32(cat.Price), profile)
+	if err != nil {
+		return fmt.Errorf("Cat wasn't sold: %w", err)
+	}
 	return nil
 }

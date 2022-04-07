@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"playground.io/another-pet-store/db"
 	"playground.io/another-pet-store/middleware"
 	"playground.io/another-pet-store/service"
 )
@@ -24,22 +25,24 @@ func Init() {
 		MaxAge: 12 * time.Hour,
 	}))
 
-	var catService service.CatService = service.CatServiceInstance{}
-	var catController = &SimpleCatController{catService: catService}
-
-	router.GET("/cats", catController.GetCats)
-	router.GET("/cats/:id", catController.FindCatByID)
-	router.POST("/cats", catController.AddCat)
-
 	var userService service.UserService = service.CreateUserService()
 	var loginService service.LoginService = service.DbLoginService(userService)
 	var jwtService service.JWTService = service.JWTAuthService()
 
 	loginController := LoginHandler(loginService, jwtService)
-
+	profileRepository := db.CreateProfileRepository()
+	profileService := service.CreateProfileService(userService, jwtService, profileRepository)
+	ProfileController := createProfileController(profileService)
+	var catService service.CatService = service.CreateCatService(profileService)
+	var catController = &SimpleCatController{catService: catService}
 	router.POST("/login", loginController.Login)
 	router.POST("/user", loginController.AddUser)
 	router.GET("/me", middleware.AuthorizeJWT(), loginController.Me)
+	router.GET("/profile", middleware.AuthorizeJWT(), ProfileController.GetProfile)
+	router.GET("/cats", catController.GetCats)
+	router.GET("/cats/:id", catController.FindCatByID)
+	router.POST("/cats", catController.AddCat)
+	router.POST("/cats/:id", catController.UpdateCat)
 
 	router.Run("localhost:8080")
 }
