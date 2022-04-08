@@ -59,6 +59,7 @@ func FindAllCats(offset int, limit int) ([]model.Cat, int, error) {
 		return nil, 0, fmt.Errorf("Error during update command %w", err)
 	}
 
+	defer rows.Close()
 	var cats []model.Cat
 
 	var full_count int64 = 0
