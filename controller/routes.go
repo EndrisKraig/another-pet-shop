@@ -33,16 +33,17 @@ func Init() {
 	profileRepository := db.CreateProfileRepository()
 	profileService := service.CreateProfileService(userService, jwtService, profileRepository)
 	ProfileController := createProfileController(profileService)
-	var catService service.CatService = service.CreateCatService(profileService)
-	var catController = &SimpleCatController{catService: catService}
+	animalRepository := db.CreateAnimalRepository()
+	var animalService service.AnimalService = service.CreateAnimalService(profileService, animalRepository)
+	var animalController = &SimpleAnimalController{animalService: animalService}
 	router.POST("/login", loginController.Login)
 	router.POST("/user", loginController.AddUser)
 	router.GET("/me", middleware.AuthorizeJWT(), loginController.Me)
 	router.GET("/profile", middleware.AuthorizeJWT(), ProfileController.GetProfile)
-	router.GET("/cats", catController.GetCats)
-	router.GET("/cats/:id", catController.FindCatByID)
-	router.POST("/cats", catController.AddCat)
-	router.POST("/cats/:id", catController.UpdateCat)
+	router.GET("/animals", animalController.GetAnimals)
+	router.GET("/animals/:id", animalController.FindAnimalByID)
+	router.POST("/animals", animalController.AddAnimal)
+	router.POST("/animals/:id", animalController.UpdateAnimal)
 
 	router.Run("localhost:8080")
 }

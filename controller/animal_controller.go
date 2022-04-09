@@ -10,18 +10,18 @@ import (
 	"playground.io/another-pet-store/service"
 )
 
-type CatController interface {
-	GetCats(c *gin.Context)
-	AddCat(c *gin.Context)
-	FindCatByID(c *gin.Context)
-	UpdateCat(c *gin.Context)
+type AnimalController interface {
+	GetAnimals(c *gin.Context)
+	AddAnimal(c *gin.Context)
+	FindAnimalByID(c *gin.Context)
+	UpdateAnimal(c *gin.Context)
 }
 
-type SimpleCatController struct {
-	catService service.CatService
+type SimpleAnimalController struct {
+	animalService service.AnimalService
 }
 
-func (catController *SimpleCatController) GetCats(c *gin.Context) {
+func (animalController *SimpleAnimalController) GetAnimals(c *gin.Context) {
 	var queryParams = c.Request.URL.Query()
 	var limit = 100
 	var page = 1
@@ -44,55 +44,54 @@ func (catController *SimpleCatController) GetCats(c *gin.Context) {
 			return
 		}
 	}
-	var catService = catController.catService
-	catResponse, err := catService.FindAllCats(page, limit)
+	var animalService = animalController.animalService
+	animalResponse, err := animalService.FindAllAnimals(page, limit)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
-	c.IndentedJSON(http.StatusOK, catResponse)
+	c.IndentedJSON(http.StatusOK, animalResponse)
 }
 
-func (catController *SimpleCatController) AddCat(c *gin.Context) {
-	var newCat dto.Cat
+func (animalController *SimpleAnimalController) AddAnimal(c *gin.Context) {
+	var newAnimal dto.Animal
 
-	if err := c.BindJSON(&newCat); err != nil {
+	if err := c.BindJSON(&newAnimal); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Wrong body message"})
 		return
 	}
-	var catService = catController.catService
-	err := catService.AddCat(&newCat)
+	var animalService = animalController.animalService
+	err := animalService.AddAnimal(&newAnimal)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 
-	c.IndentedJSON(http.StatusCreated, newCat)
+	c.IndentedJSON(http.StatusCreated, newAnimal)
 }
 
-func (catController *SimpleCatController) FindCatByID(c *gin.Context) {
+func (animalController *SimpleAnimalController) FindAnimalByID(c *gin.Context) {
 	id := c.Param("id")
-	var catService = catController.catService
-	cat, err := catService.FindCatById(id)
+	var animalService = animalController.animalService
+	animal, err := animalService.FindAnimalById(id)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, cat)
+	c.IndentedJSON(http.StatusOK, animal)
 
 }
 
-func (controller *SimpleCatController) UpdateCat(c *gin.Context) {
+func (controller *SimpleAnimalController) UpdateAnimal(c *gin.Context) {
 	id := c.Param("id")
 	authHeader := c.GetHeader("Authorization")
-	fmt.Println("Header: " + authHeader)
 	if authHeader == "" {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
-	var catService = controller.catService
-	err := catService.UpdateCat(id, authHeader)
+	var animalService = controller.animalService
+	err := animalService.UpdateAnimal(id, authHeader)
 	if err != nil {
 		fmt.Println(err)
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
