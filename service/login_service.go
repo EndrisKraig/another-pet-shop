@@ -16,7 +16,7 @@ type SimpleLoginService struct {
 	userService UserService
 }
 
-func DbLoginService(userService UserService) LoginService {
+func NewLoginService(userService UserService) LoginService {
 	return &SimpleLoginService{userService: userService}
 }
 

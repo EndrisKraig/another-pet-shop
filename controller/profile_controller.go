@@ -15,7 +15,7 @@ type SimpleProfileController struct {
 	profileService service.ProfileService
 }
 
-func createProfileController(profileService service.ProfileService) ProfileController {
+func NewProfileController(profileService service.ProfileService) ProfileController {
 	return &SimpleProfileController{profileService: profileService}
 }
 

@@ -18,7 +18,7 @@ type UserService interface {
 type SimpleUserService struct {
 }
 
-func CreateUserService() UserService {
+func NewUserService() UserService {
 	return &SimpleUserService{}
 }
 

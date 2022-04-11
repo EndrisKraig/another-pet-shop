@@ -21,6 +21,10 @@ type SimpleAnimalController struct {
 	animalService service.AnimalService
 }
 
+func NewAnimalController(animalService service.AnimalService) AnimalController {
+	return &SimpleAnimalController{animalService: animalService}
+}
+
 func (animalController *SimpleAnimalController) GetAnimals(c *gin.Context) {
 	var queryParams = c.Request.URL.Query()
 	var limit = 100

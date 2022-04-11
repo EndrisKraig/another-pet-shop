@@ -14,5 +14,8 @@ func init() {
 }
 
 func main() {
-	controller.Init()
+	profileController := NewProfileController()
+	loginController := NewLoginController()
+	animalController := NewAnimalController()
+	controller.Init(loginController, animalController, profileController)
 }

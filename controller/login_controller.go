@@ -10,28 +10,26 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var LoginControllerInstance LoginController
-
 type LoginController interface {
 	Login(ctx *gin.Context)
 	AddUser(ctx *gin.Context)
 	Me(ctx *gin.Context)
 }
 
-type loginController struct {
+type SimpleLoginController struct {
 	loginService service.LoginService
 	jWtService   service.JWTService
 	userService  service.UserService
 }
 
-func LoginHandler(loginService service.LoginService, jWtService service.JWTService) *loginController {
-	return &loginController{
+func NewLoginController(loginService service.LoginService, jWtService service.JWTService) LoginController {
+	return &SimpleLoginController{
 		loginService: loginService,
 		jWtService:   jWtService,
 	}
 }
 
-func (controller *loginController) Login(c *gin.Context) {
+func (controller *SimpleLoginController) Login(c *gin.Context) {
 	var credential dto.LoginCredentials
 	err := c.ShouldBind(&credential)
 	if err != nil {
@@ -48,12 +46,12 @@ func (controller *loginController) Login(c *gin.Context) {
 	c.JSON(http.StatusUnauthorized, gin.H{"message": "Authentication failed"})
 }
 
-func (controller *loginController) Me(c *gin.Context) {
+func (controller *SimpleLoginController) Me(c *gin.Context) {
 	i, _ := middleware.Me(c)
 	c.IndentedJSON(http.StatusOK, i)
 }
 
-func (controller *loginController) AddUser(c *gin.Context) {
+func (controller *SimpleLoginController) AddUser(c *gin.Context) {
 	var newUser dto.User
 	if err := c.BindJSON(&newUser); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Wrong request body"})

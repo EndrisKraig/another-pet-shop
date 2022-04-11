@@ -14,12 +14,13 @@ SELECT
     (
         SELECT
             id
+        FROM
+            animal_type
         WHERE
             label = 'cat'
     ),
     (random() * 2000 + 1000) :: int,
     breed_t.link,
-    md5(random() :: text),
     md5(random() :: text),
     (random() * 12) :: int
 FROM

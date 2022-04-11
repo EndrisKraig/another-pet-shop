@@ -17,7 +17,7 @@ type AnimalRepository interface {
 type SimpleAnimalRepository struct {
 }
 
-func CreateAnimalRepository() AnimalRepository {
+func NewAnimalRepository() AnimalRepository {
 	return &SimpleAnimalRepository{}
 }
 

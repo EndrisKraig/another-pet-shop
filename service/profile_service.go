@@ -21,7 +21,7 @@ type SimpleProfileService struct {
 	profileRepository db.ProfileRepository
 }
 
-func CreateProfileService(userService UserService, jwtServices JWTService, profileRepository db.ProfileRepository) ProfileService {
+func NewProfileService(userService UserService, jwtServices JWTService, profileRepository db.ProfileRepository) ProfileService {
 	return &SimpleProfileService{userService: userService, jwtService: jwtServices, profileRepository: profileRepository}
 }
 

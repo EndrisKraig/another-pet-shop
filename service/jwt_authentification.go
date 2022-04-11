@@ -24,7 +24,7 @@ type jwtServices struct {
 	issure    string
 }
 
-func JWTAuthService() JWTService {
+func NewJWTService() JWTService {
 	return &jwtServices{
 		secretKey: getSecretKey(),
 		issure:    "Admin",

@@ -23,7 +23,7 @@ func Me(c *gin.Context) (jwt.MapClaims, error) {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return nil, fmt.Errorf("No auth header!")
 	}
-	token, err := service.JWTAuthService().ValidateToken(authHeader)
+	token, err := service.NewJWTService().ValidateToken(authHeader)
 	if err != nil {
 		fmt.Println(err)
 		c.AbortWithStatus(http.StatusUnauthorized)

@@ -15,7 +15,7 @@ type ProfileRepository interface {
 
 type SimpleProfileRepository struct{}
 
-func CreateProfileRepository() ProfileRepository {
+func NewProfileRepository() ProfileRepository {
 	return &SimpleProfileRepository{}
 }
 

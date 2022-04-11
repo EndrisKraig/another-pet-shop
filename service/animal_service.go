@@ -21,7 +21,7 @@ type AnimalServiceInstance struct {
 	animalRepository db.AnimalRepository
 }
 
-func CreateAnimalService(profileService ProfileService, animalRepository db.AnimalRepository) AnimalService {
+func NewAnimalService(profileService ProfileService, animalRepository db.AnimalRepository) AnimalService {
 	return &AnimalServiceInstance{profileService: profileService, animalRepository: animalRepository}
 }
 
