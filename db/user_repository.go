@@ -9,10 +9,13 @@ import (
 )
 
 func AddUser(user *model.User) {
-	var conn = getConnection()
-	defer conn.Close(context.Background())
+	conn, err := GetConnection()
 
-	_, err := conn.Exec(context.Background(), "INSERT INTO users (username, pass_hash, email) VALUES ($1, $2, $3)", user.Username, user.Hash, user.Email)
+	if err != nil {
+		return
+	}
+
+	_, err = conn.Exec(context.Background(), "INSERT INTO users (username, pass_hash, email) VALUES ($1, $2, $3)", user.Username, user.Hash, user.Email)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
@@ -21,12 +24,15 @@ func AddUser(user *model.User) {
 }
 
 func FindUser(username string) *model.User {
-	var conn = getConnection()
-	defer conn.Close(context.Background())
+	conn, err := GetConnection()
+
+	if err != nil {
+		return nil
+	}
 	var id int64
 	var hash string
 	var email string
-	err := conn.QueryRow(context.Background(), "select id, pass_hash, email FROM users WHERE username=$1", username).Scan(&id, &hash, &email)
+	err = conn.QueryRow(context.Background(), "select id, pass_hash, email FROM users WHERE username=$1", username).Scan(&id, &hash, &email)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)

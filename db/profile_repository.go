@@ -20,9 +20,12 @@ func NewProfileRepository() ProfileRepository {
 }
 
 func (rep *SimpleProfileRepository) CreateProfile(userId int) error {
-	var conn = getConnection()
-	defer conn.Close(context.Background())
-	_, err := conn.Exec(context.Background(), "INSERT INTO user_profile (user_id, balance, image_url, notes) VALUES ($1, $2, $3, $4)", userId, 10000, "http://localhost:8080/", "Best user in the world!")
+	conn, err := GetConnection()
+
+	if err != nil {
+		return err
+	}
+	_, err = conn.Exec(context.Background(), "INSERT INTO user_profile (user_id, balance, image_url, notes) VALUES ($1, $2, $3, $4)", userId, 10000, "http://localhost:8080/", "Best user in the world!")
 
 	if err != nil {
 		return fmt.Errorf("error execute insert command: %w", err)
@@ -32,8 +35,11 @@ func (rep *SimpleProfileRepository) CreateProfile(userId int) error {
 }
 
 func (rep *SimpleProfileRepository) GetProfileByUserId(ID int64) (*model.Profile, error) {
-	var conn = getConnection()
-	defer conn.Close(context.Background())
+	conn, err := GetConnection()
+
+	if err != nil {
+		return nil, err
+	}
 
 	var id int64
 	var nickname string
@@ -42,7 +48,7 @@ func (rep *SimpleProfileRepository) GetProfileByUserId(ID int64) (*model.Profile
 	var notes string
 	var balance float64
 
-	err := conn.QueryRow(context.Background(), "select user_profile.id, username, image_url, notes, balance from user_profile join users on user_id=users.id where user_id=$1", ID).Scan(&id, &nickname, &image_url, &notes, &balance)
+	err = conn.QueryRow(context.Background(), "select user_profile.id, username, image_url, notes, balance from user_profile join users on user_id=users.id where user_id=$1", ID).Scan(&id, &nickname, &image_url, &notes, &balance)
 	if err != nil {
 		return nil, fmt.Errorf("error find profile with id %d: %w", id, err)
 	}
@@ -50,9 +56,12 @@ func (rep *SimpleProfileRepository) GetProfileByUserId(ID int64) (*model.Profile
 }
 
 func (rep *SimpleProfileRepository) UpdateBalance(profileId int64, newBalance float64) error {
-	var conn = getConnection()
-	defer conn.Close(context.Background())
-	_, err := conn.Exec(context.Background(), "UPDATE cats SET balance=$2 WHERE id = $1", profileId, newBalance)
+	conn, err := GetConnection()
+
+	if err != nil {
+		return err
+	}
+	_, err = conn.Exec(context.Background(), "UPDATE cats SET balance=$2 WHERE id = $1", profileId, newBalance)
 
 	if err != nil {
 		return fmt.Errorf("error execute update command: %w", err)
