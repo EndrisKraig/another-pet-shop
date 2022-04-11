@@ -1,12 +1,12 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"playground.io/another-pet-store/dto"
+	"playground.io/another-pet-store/middleware"
 	"playground.io/another-pet-store/service"
 )
 
@@ -89,15 +89,15 @@ func (animalController *SimpleAnimalController) FindAnimalByID(c *gin.Context) {
 
 func (controller *SimpleAnimalController) UpdateAnimal(c *gin.Context) {
 	id := c.Param("id")
-	authHeader := c.GetHeader("Authorization")
-	if authHeader == "" {
-		c.AbortWithStatus(http.StatusUnauthorized)
+	claims, err := middleware.GetClaims(c)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 	var animalService = controller.animalService
-	err := animalService.UpdateAnimal(id, authHeader)
+	userId := claims["userId"]
+	err = animalService.UpdateAnimal(id, int(userId.(float64)))
 	if err != nil {
-		fmt.Println(err)
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}

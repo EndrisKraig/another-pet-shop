@@ -15,10 +15,8 @@ import (
 // Injectors from controller_injector.go:
 
 func NewAnimalController() controller.AnimalController {
-	userService := service.NewUserService()
-	jwtService := service.NewJWTService()
 	profileRepository := db.NewProfileRepository()
-	profileService := service.NewProfileService(userService, jwtService, profileRepository)
+	profileService := service.NewProfileService(profileRepository)
 	animalRepository := db.NewAnimalRepository()
 	animalService := service.NewAnimalService(profileService, animalRepository)
 	animalController := controller.NewAnimalController(animalService)
@@ -26,18 +24,18 @@ func NewAnimalController() controller.AnimalController {
 }
 
 func NewLoginController() controller.LoginController {
-	userService := service.NewUserService()
-	loginService := service.NewLoginService(userService)
+	profileRepository := db.NewProfileRepository()
+	profileService := service.NewProfileService(profileRepository)
+	userService := service.NewUserService(profileService)
 	jwtService := service.NewJWTService()
-	loginController := controller.NewLoginController(loginService, jwtService)
+	loginService := service.NewLoginService(userService, profileService, jwtService)
+	loginController := controller.NewLoginController(loginService)
 	return loginController
 }
 
 func NewProfileController() controller.ProfileController {
-	userService := service.NewUserService()
-	jwtService := service.NewJWTService()
 	profileRepository := db.NewProfileRepository()
-	profileService := service.NewProfileService(userService, jwtService, profileRepository)
+	profileService := service.NewProfileService(profileRepository)
 	profileController := controller.NewProfileController(profileService)
 	return profileController
 }

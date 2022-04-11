@@ -8,22 +8,32 @@ import (
 )
 
 type LoginService interface {
-	LoginUser(user *dto.User) bool
+	LoginUser(user *dto.User) (string, error)
 	NewUser(user *dto.User)
 }
 
 type SimpleLoginService struct {
-	userService UserService
+	userService    UserService
+	profileService ProfileService
+	jwtService     JWTService
 }
 
-func NewLoginService(userService UserService) LoginService {
-	return &SimpleLoginService{userService: userService}
+func NewLoginService(userService UserService, profileService ProfileService, jwtService JWTService) LoginService {
+	return &SimpleLoginService{userService: userService, profileService: profileService, jwtService: jwtService}
 }
 
-func (loginService *SimpleLoginService) LoginUser(user *dto.User) bool {
+func (loginService *SimpleLoginService) LoginUser(user *dto.User) (string, error) {
 	var dbUser = loginService.userService.FindUserByUsername(user.Username)
-	var isIt = checkPasswordHash(user.Password, dbUser.Hash)
-	return isIt
+	profile, err := loginService.profileService.GetProfile(int(dbUser.ID))
+	if err != nil {
+		return "", fmt.Errorf("profile wasn't found: %w", err)
+	}
+	var isPasswordsEquals = checkPasswordHash(user.Password, dbUser.Hash)
+	if !isPasswordsEquals {
+		return "", fmt.Errorf("password not equals")
+	}
+	token := loginService.jwtService.GenerateToken(profile.Nickname, true, int(dbUser.ID), int(profile.Id))
+	return token, nil
 }
 
 func (loginService *SimpleLoginService) NewUser(user *dto.User) {

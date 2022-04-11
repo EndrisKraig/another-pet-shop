@@ -18,14 +18,11 @@ type LoginController interface {
 
 type SimpleLoginController struct {
 	loginService service.LoginService
-	jWtService   service.JWTService
-	userService  service.UserService
 }
 
-func NewLoginController(loginService service.LoginService, jWtService service.JWTService) LoginController {
+func NewLoginController(loginService service.LoginService) LoginController {
 	return &SimpleLoginController{
 		loginService: loginService,
-		jWtService:   jWtService,
 	}
 }
 
@@ -37,18 +34,22 @@ func (controller *SimpleLoginController) Login(c *gin.Context) {
 		return
 	}
 	var user = &dto.User{Username: credential.Email, Password: credential.Password}
-	isUserAuthenticated := controller.loginService.LoginUser(user)
-	if isUserAuthenticated {
-		var token = controller.jWtService.GenerateToken(user.Username, true)
-		c.IndentedJSON(http.StatusOK, gin.H{"token": token})
+	token, err := controller.loginService.LoginUser(user)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Authentication failed"})
 		return
 	}
-	c.JSON(http.StatusUnauthorized, gin.H{"message": "Authentication failed"})
+
+	c.IndentedJSON(http.StatusOK, gin.H{"token": token})
+
 }
 
 func (controller *SimpleLoginController) Me(c *gin.Context) {
-	i, _ := middleware.Me(c)
-	c.IndentedJSON(http.StatusOK, i)
+	payload, ok := c.Get(middleware.AuthorizationPayloadKey)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "User unauthorized"})
+	}
+	c.IndentedJSON(http.StatusOK, payload)
 }
 
 func (controller *SimpleLoginController) AddUser(c *gin.Context) {

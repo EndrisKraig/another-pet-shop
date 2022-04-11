@@ -9,35 +9,39 @@ import (
 )
 
 type JWTService interface {
-	GenerateToken(email string, isUser bool) string
+	GenerateToken(email string, isUser bool, userId, profileId int) string
 	ValidateToken(token string) (*jwt.Token, error)
 }
 
-type authCustomClaims struct {
-	Name string `json:"name"`
-	User bool   `json:"user"`
+type AuthCustomClaims struct {
+	Name      string `json:"name"`
+	User      bool   `json:"user"`
+	UserId    int    `json:"userId"`
+	ProfileId int    `json:"profileId"`
 	jwt.StandardClaims
 }
 
 type jwtServices struct {
 	secretKey string
-	issure    string
+	issuer    string
 }
 
 func NewJWTService() JWTService {
 	return &jwtServices{
 		secretKey: getSecretKey(),
-		issure:    "Admin",
+		issuer:    "Admin",
 	}
 }
 
-func (service *jwtServices) GenerateToken(email string, isUser bool) string {
-	claims := &authCustomClaims{
+func (service *jwtServices) GenerateToken(email string, isUser bool, userId, profileId int) string {
+	claims := &AuthCustomClaims{
 		email,
 		isUser,
+		userId,
+		profileId,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 48).Unix(),
-			Issuer:    service.issure,
+			Issuer:    service.issuer,
 			IssuedAt:  time.Now().Unix(),
 		},
 	}
@@ -62,8 +66,7 @@ func getSecretKey() string {
 func (service *jwtServices) ValidateToken(encodedToken string) (*jwt.Token, error) {
 	return jwt.Parse(encodedToken, func(token *jwt.Token) (interface{}, error) {
 		if _, isValid := token.Method.(*jwt.SigningMethodHMAC); !isValid {
-			return nil, fmt.Errorf("Invalid token %s", token.Header["alg"])
-
+			return nil, fmt.Errorf("invalid token %s", token.Header["alg"])
 		}
 		return []byte(service.secretKey), nil
 	})

@@ -39,7 +39,7 @@ func (repository *SimpleAnimalRepository) FindAnimalById(ID int) (*model.Animal,
 	err := conn.QueryRow(context.Background(), query, ID).Scan(&id, &nickname, &breed, &animaltype, &price, &imageUrl, &age, &title)
 	if err != nil {
 		fmt.Println(err)
-		return nil, fmt.Errorf("Error animal with id %d doesn't exist: %v", ID, err)
+		return nil, fmt.Errorf("error animal with id %d doesn't exist: %v", ID, err)
 	}
 	return &model.Animal{ID: id, Nickname: nickname, Breed: breed, Price: price, Age: age, ImageUrl: imageUrl, Title: title, Type: animaltype}, nil
 }
@@ -53,7 +53,7 @@ func (repository *SimpleAnimalRepository) AddAnimal(animal model.Animal) error {
 	_, err := conn.Exec(context.Background(), query, animal.Nickname, animal.Breed, animal.Price)
 
 	if err != nil {
-		return fmt.Errorf("Error execute insert command: %w", err)
+		return fmt.Errorf("error execute insert command: %w", err)
 	}
 	return nil
 }
@@ -67,7 +67,7 @@ func (repository *SimpleAnimalRepository) UpdateAnimal(animal model.Animal) erro
 	_, err := conn.Exec(context.Background(), query, animal.Nickname, animal.Breed, animal.Price, animal.BuyerId, animal.Type, animal.ID)
 
 	if err != nil {
-		return fmt.Errorf("Error execute insert command: %w", err)
+		return fmt.Errorf("error execute insert command: %w", err)
 	}
 	return nil
 }
@@ -81,7 +81,7 @@ func (repository *SimpleAnimalRepository) FindAllAnimals(offset int, limit int) 
 	rows, err := conn.Query(context.Background(), query, offset, limit)
 
 	if err != nil {
-		return nil, 0, fmt.Errorf("Error during update command %w", err)
+		return nil, 0, fmt.Errorf("error during update command %w", err)
 	}
 
 	defer rows.Close()
@@ -92,7 +92,7 @@ func (repository *SimpleAnimalRepository) FindAllAnimals(offset int, limit int) 
 	for rows.Next() {
 		values, err := rows.Values()
 		if err != nil {
-			return nil, 0, fmt.Errorf("Error during obtaining result rows values: %w", err)
+			return nil, 0, fmt.Errorf("error during obtaining result rows values: %w", err)
 		}
 
 		id := values[0].(int64)

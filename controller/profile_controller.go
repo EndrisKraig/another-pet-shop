@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"playground.io/another-pet-store/middleware"
 	"playground.io/another-pet-store/service"
 )
 
@@ -20,12 +21,13 @@ func NewProfileController(profileService service.ProfileService) ProfileControll
 }
 
 func (controller *SimpleProfileController) GetProfile(c *gin.Context) {
-	authHeader := c.GetHeader("Authorization")
-	if authHeader == "" {
-		c.AbortWithStatus(http.StatusUnauthorized)
+	claims, err := middleware.GetClaims(c)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Unknown server error"})
 		return
 	}
-	var profile, err = controller.profileService.GetProfile(authHeader)
+	userId := claims["userId"]
+	profile, err := controller.profileService.GetProfile(int(userId.(float64)))
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Unknown server error"})
 		return

@@ -13,16 +13,16 @@ import (
 //TODO cross reference is a sign of bad design? Or there is another way to make exactly one instance of a service
 
 func NewAnimalController() controller.AnimalController {
-	wire.Build(controller.NewAnimalController, service.NewAnimalService, db.NewAnimalRepository, service.NewProfileService, service.NewJWTService, service.NewUserService, db.NewProfileRepository)
+	wire.Build(controller.NewAnimalController, service.NewAnimalService, db.NewAnimalRepository, service.NewProfileService, db.NewProfileRepository)
 	return &controller.SimpleAnimalController{}
 }
 
 func NewLoginController() controller.LoginController {
-	wire.Build(controller.NewLoginController, service.NewLoginService, service.NewJWTService, service.NewUserService)
+	wire.Build(controller.NewLoginController, service.NewLoginService, service.NewJWTService, service.NewUserService, service.NewProfileService, db.NewProfileRepository)
 	return &controller.SimpleLoginController{}
 }
 
 func NewProfileController() controller.ProfileController {
-	wire.Build(controller.NewProfileController, service.NewProfileService, service.NewUserService, service.NewJWTService, db.NewProfileRepository)
+	wire.Build(controller.NewProfileController, service.NewProfileService, db.NewProfileRepository)
 	return &controller.SimpleProfileController{}
 }
