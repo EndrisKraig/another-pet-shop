@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 
 	"playground.io/another-pet-store/dto"
@@ -36,6 +37,7 @@ func (controller *SimpleLoginController) Login(c *gin.Context) {
 	var user = &dto.User{Username: credential.Email, Password: credential.Password}
 	token, err := controller.loginService.LoginUser(user)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(http.StatusUnauthorized, gin.H{"message": "Authentication failed"})
 		return
 	}

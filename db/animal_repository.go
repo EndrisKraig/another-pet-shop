@@ -54,9 +54,9 @@ func (repository *SimpleAnimalRepository) AddAnimal(animal model.Animal) error {
 		return err
 	}
 	//TODO fix insert, new constraints require type as well
-	const query = `INSERT INTO animal (nickname, breed_id, price)
-				   VALUES ($1, (SELECT id FROM breed WHERE label $2), $3)`
-	_, err = conn.Exec(context.Background(), query, animal.Nickname, animal.Breed, animal.Price)
+	const query = `INSERT INTO animal (nickname, breed_id, type_id, price, age, image_url, title)
+				   VALUES ($1, (SELECT id FROM breed WHERE label = $2), (SELECT id FROM animal_type WHERE label = $3), $4, $5,$6,$7)`
+	_, err = conn.Exec(context.Background(), query, animal.Nickname, animal.Breed, animal.Type, animal.Price, animal.Age, animal.ImageUrl, animal.Title)
 
 	if err != nil {
 		return fmt.Errorf("error execute insert command: %w", err)
@@ -72,9 +72,9 @@ func (repository *SimpleAnimalRepository) UpdateAnimal(animal model.Animal) erro
 	}
 
 	const query = `UPDATE animal
-				   SET nickname=$1, breed_id=$(SELECT id FROM breed WHERE label = $2), price=$3, buyer_id=$4, type=$5
-				   WHERE id = $6`
-	_, err = conn.Exec(context.Background(), query, animal.Nickname, animal.Breed, animal.Price, animal.BuyerId, animal.Type, animal.ID)
+				   SET buyer_id=$1
+				   WHERE id = $2`
+	_, err = conn.Exec(context.Background(), query, animal.BuyerId, animal.ID)
 
 	if err != nil {
 		return fmt.Errorf("error execute insert command: %w", err)

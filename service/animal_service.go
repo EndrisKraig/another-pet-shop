@@ -61,7 +61,7 @@ func (c AnimalServiceInstance) FindAllAnimals(page, limit int) (*dto.AnimalRespo
 }
 
 func (c AnimalServiceInstance) AddAnimal(animal *dto.Animal) error {
-	var newAnimal model.Animal = model.Animal{Nickname: animal.Nickname, Breed: animal.Breed, Price: animal.Price}
+	var newAnimal model.Animal = model.Animal{Nickname: animal.Nickname, Breed: animal.Breed, Price: animal.Price, Type: animal.Type, Age: animal.Age, ImageUrl: animal.ImageUrl, Title: animal.Title}
 	err := c.animalRepository.AddAnimal(newAnimal)
 	if err != nil {
 		return fmt.Errorf("couldn't add animal: %w", err)

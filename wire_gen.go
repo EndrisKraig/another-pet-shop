@@ -24,9 +24,9 @@ func NewAnimalController() controller.AnimalController {
 }
 
 func NewLoginController() controller.LoginController {
+	userService := service.NewUserService()
 	profileRepository := db.NewProfileRepository()
 	profileService := service.NewProfileService(profileRepository)
-	userService := service.NewUserService(profileService)
 	jwtService := service.NewJWTService()
 	loginService := service.NewLoginService(userService, profileService, jwtService)
 	loginController := controller.NewLoginController(loginService)

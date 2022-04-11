@@ -16,11 +16,10 @@ type UserService interface {
 }
 
 type SimpleUserService struct {
-	profileService ProfileService
 }
 
-func NewUserService(profileService ProfileService) UserService {
-	return &SimpleUserService{profileService: profileService}
+func NewUserService() UserService {
+	return &SimpleUserService{}
 }
 
 func (s *SimpleUserService) FindUserByUsername(username string) *model.User {
@@ -34,6 +33,7 @@ func (s *SimpleUserService) RegisterUser(userDto *dto.User) {
 		fmt.Fprintf(os.Stderr, "Failed to generate hash: %v\n", err)
 		os.Exit(1)
 	}
+
 	var user = model.User{Username: userDto.Username, Hash: hash, Email: userDto.Email}
 	db.AddUser(&user)
 }

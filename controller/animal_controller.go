@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -91,11 +92,14 @@ func (controller *SimpleAnimalController) UpdateAnimal(c *gin.Context) {
 	id := c.Param("id")
 	claims, err := middleware.GetClaims(c)
 	if err != nil {
+		fmt.Println(err)
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
+	fmt.Println("here")
 	var animalService = controller.animalService
 	userId := claims["userId"]
+	fmt.Println(userId)
 	err = animalService.UpdateAnimal(id, int(userId.(float64)))
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})

@@ -14,4 +14,5 @@ type Animal struct {
 	ImageUrl string `json:"imageUrl"`
 	Title    string `json:"title"`
 	Age      int32  `json:"age"`
+	Type     string `json:"type"`
 }

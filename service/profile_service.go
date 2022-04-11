@@ -33,9 +33,7 @@ func (service *SimpleProfileService) GetProfile(userId int) (*dto.Profile, error
 	profile, err := service.profileRepository.GetProfileByUserId(int64(userId))
 	//TODO move create profile logic to addUser method in user service
 	if err != nil {
-		service.CreateProfile(userId)
-		profile, err = service.profileRepository.GetProfileByUserId(int64(userId))
-		fmt.Println(err)
+		return nil, err
 	}
 	return &dto.Profile{Id: profile.ID, Balance: profile.Balance, Image_url: profile.Image_url, Notes: profile.Notes, Nickname: profile.Nickname}, nil
 }

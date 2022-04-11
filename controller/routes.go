@@ -31,7 +31,7 @@ func Init(loginController LoginController, animalController AnimalController, pr
 	router.GET("/animals", animalController.GetAnimals)
 	router.GET("/animals/:id", animalController.FindAnimalByID)
 	router.POST("/animals", animalController.AddAnimal)
-	router.POST("/animals/:id", animalController.UpdateAnimal)
+	router.POST("/animals/:id", middleware.AuthorizeJWT(), animalController.UpdateAnimal)
 
 	router.Run("localhost:8080")
 }
