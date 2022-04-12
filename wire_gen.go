@@ -39,3 +39,10 @@ func NewProfileController() controller.ProfileController {
 	profileController := controller.NewProfileController(profileService)
 	return profileController
 }
+
+func NewReferenceController() controller.ReferenceController {
+	referenceRepository := db.NewReferenceRepository()
+	referenceService := service.NewReferenceService(referenceRepository)
+	referenceController := controller.NewReferenceController(referenceService)
+	return referenceController
+}

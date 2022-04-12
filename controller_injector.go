@@ -26,3 +26,8 @@ func NewProfileController() controller.ProfileController {
 	wire.Build(controller.NewProfileController, service.NewProfileService, db.NewProfileRepository)
 	return &controller.SimpleProfileController{}
 }
+
+func NewReferenceController() controller.ReferenceController {
+	wire.Build(controller.NewReferenceController, service.NewReferenceService, db.NewReferenceRepository)
+	return &controller.SimpleReferenceController{}
+}
