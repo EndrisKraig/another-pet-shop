@@ -46,3 +46,10 @@ func NewReferenceController() controller.ReferenceController {
 	referenceController := controller.NewReferenceController(referenceService)
 	return referenceController
 }
+
+func NewSpecialOfferController() controller.SpecialOfferController {
+	specialOfferRepository := db.NewSpecialOfferRepository()
+	specialOfferService := service.NewSpecialOfferServie(specialOfferRepository)
+	specialOfferController := controller.NewSpecialOfferController(specialOfferService)
+	return specialOfferController
+}

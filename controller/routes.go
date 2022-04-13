@@ -9,7 +9,7 @@ import (
 	"playground.io/another-pet-store/middleware"
 )
 
-func Init(loginController LoginController, animalController AnimalController, profileController ProfileController, referenceController ReferenceController) {
+func Init(loginController LoginController, animalController AnimalController, profileController ProfileController, referenceController ReferenceController, specialOfferController SpecialOfferController) {
 	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
@@ -29,6 +29,7 @@ func Init(loginController LoginController, animalController AnimalController, pr
 	router.GET("/me", middleware.AuthorizeJWT(), loginController.Me)
 	router.GET("/profile", middleware.AuthorizeJWT(), profileController.GetProfile)
 	router.GET("/animals", animalController.GetAnimals)
+	router.GET("/animals/specials", specialOfferController.GetSpecialOffers)
 	router.GET("/animals/:id", animalController.FindAnimalByID)
 	router.POST("/animals", animalController.AddAnimal)
 	router.POST("/animals/:id", middleware.AuthorizeJWT(), animalController.UpdateAnimal)

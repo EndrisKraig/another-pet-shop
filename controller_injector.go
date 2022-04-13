@@ -31,3 +31,8 @@ func NewReferenceController() controller.ReferenceController {
 	wire.Build(controller.NewReferenceController, service.NewReferenceService, db.NewReferenceRepository)
 	return &controller.SimpleReferenceController{}
 }
+
+func NewSpecialOfferController() controller.SpecialOfferController {
+	wire.Build(controller.NewSpecialOfferController, service.NewSpecialOfferServie, db.NewSpecialOfferRepository)
+	return &controller.SimpleOfferController{}
+}
