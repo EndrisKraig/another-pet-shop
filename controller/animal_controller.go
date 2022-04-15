@@ -96,12 +96,11 @@ func (controller *SimpleAnimalController) UpdateAnimal(c *gin.Context) {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
-	fmt.Println("here")
 	var animalService = controller.animalService
-	userId := claims["userId"]
-	fmt.Println(userId)
-	err = animalService.UpdateAnimal(id, int(userId.(float64)))
+	profileId := claims["profileId"]
+	err = animalService.UpdateAnimal(id, int(profileId.(float64)))
 	if err != nil {
+		fmt.Println(err)
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}

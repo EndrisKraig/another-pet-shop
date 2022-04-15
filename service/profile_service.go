@@ -10,7 +10,8 @@ import (
 type ProfileService interface {
 	CreateProfile(userId int) error
 	GetProfile(userId int) (*dto.Profile, error)
-	ChangeBalance(value float32, profile *dto.Profile) error
+	ChangeBalance(animalPrice, profileCash int) (int, error)
+	ChangeBalanceFunc() func(int, int) (int, error)
 }
 
 type SimpleProfileService struct {
@@ -31,18 +32,20 @@ func (service *SimpleProfileService) CreateProfile(userId int) error {
 
 func (service *SimpleProfileService) GetProfile(userId int) (*dto.Profile, error) {
 	profile, err := service.profileRepository.GetProfileByUserId(int64(userId))
-	//TODO move create profile logic to addUser method in user service
 	if err != nil {
 		return nil, err
 	}
 	return &dto.Profile{Id: profile.ID, Balance: profile.Balance, Image_url: profile.Image_url, Notes: profile.Notes, Nickname: profile.Nickname}, nil
 }
 
-func (service *SimpleProfileService) ChangeBalance(value float32, profile *dto.Profile) error {
-	newBalance := profile.Balance - float32(value)
-	err := service.profileRepository.UpdateBalance(profile.Id, float64(newBalance))
-	if err != nil {
-		return fmt.Errorf("error changing balance: %w", err)
+func (service *SimpleProfileService) ChangeBalance(animalPrice, profileCash int) (int, error) {
+	newBalance := profileCash - animalPrice
+	if newBalance < 0 {
+		return 0, fmt.Errorf("not enough money to buy an animal, you need %d more", newBalance)
 	}
-	return nil
+	return newBalance, nil
+}
+
+func (service *SimpleProfileService) ChangeBalanceFunc() func(int, int) (int, error) {
+	return service.ChangeBalance
 }

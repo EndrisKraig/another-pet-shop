@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/jackc/pgx/v4"
 	"playground.io/another-pet-store/model"
 )
 
@@ -12,6 +13,7 @@ type AnimalRepository interface {
 	AddAnimal(animal model.Animal) error
 	UpdateAnimal(animal model.Animal) error
 	FindAllAnimals(offset int, limit int) ([]model.Animal, int, error)
+	SellAnimal(animalId, profileId int, balanceCalc func(int, int) (int, error)) error
 }
 
 type SimpleAnimalRepository struct {
@@ -120,4 +122,55 @@ func (repository *SimpleAnimalRepository) FindAllAnimals(offset int, limit int) 
 		animals = append(animals, model.Animal{ID: id, Nickname: nickname, Breed: breed, Price: price, ImageUrl: imageUrl, Title: title, Age: age, Type: animalType})
 	}
 	return animals[:], int(full_count), nil
+}
+
+func (repository *SimpleAnimalRepository) SellAnimal(animalId, profileId int, balanceCalc func(int, int) (int, error)) error {
+	conn, err := GetConnection()
+
+	if err != nil {
+		return err
+	}
+
+	tx, err := conn.BeginTx(context.Background(), pgx.TxOptions{})
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback(context.Background())
+		} else {
+			tx.Commit(context.Background())
+		}
+	}()
+	const query = `UPDATE animal
+				   SET buyer_id=$1
+				   WHERE id = $2`
+
+	_, err = tx.Exec(context.Background(), query, profileId, animalId)
+
+	if err != nil {
+		return err
+	}
+
+	var animalPrice int64
+	var balance int32
+
+	const animalQuery = `SELECT price, balance
+	FROM animal JOIN user_profile ON user_profile.id = animal.buyer_id
+	WHERE animal.id=$1`
+
+	tx.QueryRow(context.Background(), animalQuery, animalId).Scan(&animalPrice, &balance)
+	newBalance, err := balanceCalc(int(animalPrice), int(balance))
+
+	if err != nil {
+		return err
+	}
+
+	const updateBalanceQuery = `UPDATE user_profile
+	SET balance = $1
+	WHERE id = $2;`
+	fmt.Println(newBalance)
+	_, err = tx.Exec(context.Background(), updateBalanceQuery, newBalance, profileId)
+
+	return err
 }

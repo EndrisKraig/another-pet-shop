@@ -28,7 +28,7 @@ func (service *SimpleSpecialOfferService) GetAllActiveSpecialOffers() (*dto.Spec
 	for _, v := range offersModel.Offers {
 		beginDate := v.BeginDate.String()
 		endDate := v.EndDate.String()
-		offers = append(offers, dto.SpecialOffer{ID: v.ID, Nickname: v.Nickname, Breed: v.Breed, Price: v.Price, BeginDate: beginDate, EndDate: endDate, Conditions: v.Conditions})
+		offers = append(offers, dto.SpecialOffer{ID: v.ID, Nickname: v.Nickname, Breed: v.Breed, Price: v.Price, BeginDate: beginDate, EndDate: endDate, Conditions: v.Conditions, ImageUrl: v.ImageUrl})
 	}
 	return &dto.SpecialOffers{Offers: offers}, nil
 }

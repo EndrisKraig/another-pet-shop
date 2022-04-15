@@ -69,24 +69,11 @@ func (c AnimalServiceInstance) AddAnimal(animal *dto.Animal) error {
 	return nil
 }
 
-func (service AnimalServiceInstance) UpdateAnimal(animalId string, userId int) error {
-	profile, err := service.profileService.GetProfile(userId)
+func (service AnimalServiceInstance) UpdateAnimal(animalId string, profileId int) error {
+	idAsInt, err := strconv.Atoi(animalId)
 	if err != nil {
-		return fmt.Errorf("error during updating animal: %w", err)
+		return fmt.Errorf("couldn't pars %s as string: %w", animalId, err)
 	}
-	animal, err := service.FindAnimalById(animalId)
-	if err != nil {
-		return fmt.Errorf("no animal with id %s: %v", animalId, err)
-	}
-	//TODO transaction
-	modelAnimal := model.Animal{ID: animal.ID, Nickname: animal.Nickname, Breed: animal.Breed, Price: animal.Price, BuyerId: profile.Id}
-	err = service.animalRepository.UpdateAnimal(modelAnimal)
-	if err != nil {
-		return fmt.Errorf("animal wasn't sold: %w", err)
-	}
-	err = service.profileService.ChangeBalance(float32(animal.Price), profile)
-	if err != nil {
-		return fmt.Errorf("animal wasn't sold: %w", err)
-	}
-	return nil
+	err = service.animalRepository.SellAnimal(idAsInt, profileId, service.profileService.ChangeBalanceFunc())
+	return err
 }
