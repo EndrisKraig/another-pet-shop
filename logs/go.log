@@ -1,0 +1,42 @@
+{"level":"info","ts":1650203458.4853199,"caller":"another-pet-store/main.go:30","msg":"Application started"}
+{"level":"info","ts":1650203733.0300436,"caller":"another-pet-store/main.go:30","msg":"Application started"}
+{"level":"info","ts":1650204832.4600036,"caller":"logs/logger.go:24","msg":"Logger successfully initialized"}
+{"level":"info","ts":1650204832.460239,"caller":"another-pet-store/main.go:17","msg":"Application started"}
+{"level":"info","ts":1650204861.184206,"caller":"controller/animal_controller.go:35","msg":"Requesting animals..."}
+{"level":"info","ts":1650204861.2741103,"caller":"controller/animal_controller.go:62","msg":"Animals were successfully founded"}
+{"level":"info","ts":1650204895.8093312,"caller":"controller/animal_controller.go:35","msg":"Requesting animals..."}
+{"level":"info","ts":1650204895.8173559,"caller":"controller/animal_controller.go:62","msg":"Animals were successfully founded"}
+{"level":"info","ts":1650204896.8146968,"caller":"controller/animal_controller.go:35","msg":"Requesting animals..."}
+{"level":"info","ts":1650204896.8258944,"caller":"controller/animal_controller.go:62","msg":"Animals were successfully founded"}
+{"level":"info","ts":1650204897.6785502,"caller":"controller/animal_controller.go:35","msg":"Requesting animals..."}
+{"level":"info","ts":1650204897.6889446,"caller":"controller/animal_controller.go:62","msg":"Animals were successfully founded"}
+{"level":"info","ts":1650204898.6469796,"caller":"controller/animal_controller.go:35","msg":"Requesting animals..."}
+{"level":"info","ts":1650204898.6599927,"caller":"controller/animal_controller.go:62","msg":"Animals were successfully founded"}
+{"level":"info","ts":1650204899.4088428,"caller":"controller/animal_controller.go:35","msg":"Requesting animals..."}
+{"level":"info","ts":1650204899.4309087,"caller":"controller/animal_controller.go:62","msg":"Animals were successfully founded"}
+{"level":"info","ts":1650204900.2374594,"caller":"controller/animal_controller.go:35","msg":"Requesting animals..."}
+{"level":"info","ts":1650204900.2478507,"caller":"controller/animal_controller.go:62","msg":"Animals were successfully founded"}
+{"level":"info","ts":1650204901.0948715,"caller":"controller/animal_controller.go:35","msg":"Requesting animals..."}
+{"level":"info","ts":1650204901.160118,"caller":"controller/animal_controller.go:62","msg":"Animals were successfully founded"}
+{"level":"info","ts":1650204901.8576808,"caller":"controller/animal_controller.go:35","msg":"Requesting animals..."}
+{"level":"info","ts":1650204901.8664804,"caller":"controller/animal_controller.go:62","msg":"Animals were successfully founded"}
+{"level":"info","ts":1650204902.7356212,"caller":"controller/animal_controller.go:35","msg":"Requesting animals..."}
+{"level":"info","ts":1650204902.7458668,"caller":"controller/animal_controller.go:62","msg":"Animals were successfully founded"}
+{"level":"info","ts":1650204903.5120418,"caller":"controller/animal_controller.go:35","msg":"Requesting animals..."}
+{"level":"info","ts":1650204903.5222032,"caller":"controller/animal_controller.go:62","msg":"Animals were successfully founded"}
+{"level":"info","ts":1650204904.378483,"caller":"controller/animal_controller.go:35","msg":"Requesting animals..."}
+{"level":"info","ts":1650204904.3898163,"caller":"controller/animal_controller.go:62","msg":"Animals were successfully founded"}
+{"level":"info","ts":1650204905.3455336,"caller":"controller/animal_controller.go:35","msg":"Requesting animals..."}
+{"level":"info","ts":1650204905.3639433,"caller":"controller/animal_controller.go:62","msg":"Animals were successfully founded"}
+{"level":"info","ts":1650204906.1362965,"caller":"controller/animal_controller.go:35","msg":"Requesting animals..."}
+{"level":"info","ts":1650204906.1476574,"caller":"controller/animal_controller.go:62","msg":"Animals were successfully founded"}
+{"level":"info","ts":1650204906.9433827,"caller":"controller/animal_controller.go:35","msg":"Requesting animals..."}
+{"level":"info","ts":1650204906.9520001,"caller":"controller/animal_controller.go:62","msg":"Animals were successfully founded"}
+{"level":"info","ts":1650204907.7407732,"caller":"controller/animal_controller.go:35","msg":"Requesting animals..."}
+{"level":"info","ts":1650204907.7510297,"caller":"controller/animal_controller.go:62","msg":"Animals were successfully founded"}
+{"level":"info","ts":1650204908.5264678,"caller":"controller/animal_controller.go:35","msg":"Requesting animals..."}
+{"level":"info","ts":1650204908.5348928,"caller":"controller/animal_controller.go:62","msg":"Animals were successfully founded"}
+{"level":"info","ts":1650204915.4056032,"caller":"controller/animal_controller.go:35","msg":"Requesting animals..."}
+{"level":"info","ts":1650204915.4121788,"caller":"controller/animal_controller.go:62","msg":"Animals were successfully founded"}
+{"level":"info","ts":1650204922.139625,"caller":"controller/animal_controller.go:35","msg":"Requesting animals..."}
+{"level":"info","ts":1650204922.1398027,"caller":"controller/animal_controller.go:51","msg":"Page param is incorrect int"}

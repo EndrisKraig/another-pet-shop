@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"playground.io/another-pet-store/dto"
+	"playground.io/another-pet-store/logs"
 	"playground.io/another-pet-store/middleware"
 	"playground.io/another-pet-store/service"
 )
@@ -31,11 +32,13 @@ func (animalController *SimpleAnimalController) GetAnimals(c *gin.Context) {
 	var limit = 100
 	var page = 1
 
+	logs.Logger.Info("Requesting animals...")
 	if len(queryParams["limit"]) > 0 {
 		limitParam := queryParams["limit"][0]
 		var err error
 		limit, err = strconv.Atoi(limitParam)
 		if err != nil {
+			logs.Logger.Info("Limit param is incorrect int")
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Limit param is incorrect int"})
 			return
 		}
@@ -45,6 +48,7 @@ func (animalController *SimpleAnimalController) GetAnimals(c *gin.Context) {
 		var err error
 		page, err = strconv.Atoi(pageParam)
 		if err != nil {
+			logs.Logger.Info("Page param is incorrect int")
 			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Page param is incorrect int"})
 			return
 		}
@@ -55,6 +59,7 @@ func (animalController *SimpleAnimalController) GetAnimals(c *gin.Context) {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
+	logs.Logger.Info("Animals were successfully founded")
 	c.IndentedJSON(http.StatusOK, animalResponse)
 }
 
