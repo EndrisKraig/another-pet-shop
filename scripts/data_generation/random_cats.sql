@@ -1,3 +1,13 @@
+INSERT INTO breed(label)
+VALUES ('Persian'),
+('Maine Coon'),
+('Norwegian Forest cat');
+
+INSERT INTO animal_type(label)
+VALUES ('cat'),
+('dog'),
+('fish');
+
 INSERT INTO
     animal(
         nickname,

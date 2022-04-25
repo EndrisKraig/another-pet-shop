@@ -49,7 +49,7 @@ func (c AnimalServiceInstance) FindAllAnimals(page, limit int) (*dto.AnimalRespo
 
 	var dtoAnimals []dto.Animal
 	for _, animal := range animals {
-		dtoAnimals = append(dtoAnimals, dto.Animal{ID: animal.ID, Nickname: animal.Nickname, Breed: animal.Breed, Price: animal.Price, CreateAt: animal.CreateAt, ImageUrl: animal.ImageUrl, Title: animal.Title, Age: animal.Age})
+		dtoAnimals = append(dtoAnimals, dto.Animal{ID: animal.ID, Nickname: animal.Nickname, Breed: animal.Breed, Price: animal.Price, CreateAt: animal.CreateAt, ImageUrl: animal.ImageUrl, Title: animal.Title, Age: animal.Age, Type: animal.Type})
 	}
 	var maxPage = 0
 	if animalsNum%limit == 0 {
