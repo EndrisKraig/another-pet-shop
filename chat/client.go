@@ -1,8 +1,8 @@
 package chat
 
 import (
-	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -45,6 +45,16 @@ type User struct {
 	EnterAt time.Time
 }
 
+type Message struct {
+	Sender string    `json:"sender"`
+	Text   string    `json:"text"`
+	SendAt time.Time `json:"sendAt"`
+}
+
+type Info struct {
+	ID string `json:"id"`
+}
+
 // Client is a middleman between the websocket connection and the hub.
 type Client struct {
 	hub *Hub
@@ -53,8 +63,7 @@ type Client struct {
 	conn *websocket.Conn
 
 	// Buffered channel of outbound messages.
-	send chan []byte
-
+	send chan Message
 	User
 }
 
@@ -72,20 +81,23 @@ func (c *Client) readPump() {
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
-		_, message, err := c.conn.ReadMessage()
+		_, p, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
 			}
 			break
 		}
-		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		data := map[string][]byte{
-			"message": message,
-			"id":      []byte(c.ID),
+		var data *Message = &Message{}
+		fmt.Println("here")
+		fmt.Println(string(p))
+		err = json.Unmarshal(p, data)
+		if err != nil {
+			fmt.Println(err)
+			return
 		}
-		userMessage, _ := json.Marshal(data)
-		c.hub.broadcast <- userMessage
+
+		c.hub.broadcast <- *data
 	}
 }
 
@@ -114,13 +126,18 @@ func (c *Client) writePump() {
 			if err != nil {
 				return
 			}
-			w.Write(message)
+			message.Sender = c.ID
+			message.SendAt = time.Now()
+			jsonText, _ := json.Marshal(message)
+
+			w.Write(jsonText)
 
 			// Add queued chat messages to the current websocket message.
 			n := len(c.send)
 			for i := 0; i < n; i++ {
 				w.Write(newline)
-				w.Write(<-c.send)
+				data, _ := json.Marshal(<-c.send)
+				w.Write(data)
 			}
 
 			if err := w.Close(); err != nil {
@@ -142,7 +159,7 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+	client := &Client{hub: hub, conn: conn, send: make(chan Message, 256)}
 	client.hub.register <- client
 	client.ID = GenUserId()
 	client.Addr = conn.RemoteAddr().String()
@@ -153,7 +170,11 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	go client.writePump()
 	go client.readPump()
 
-	client.send <- []byte("Welcome")
+	//client.send <- []byte("Welcome")
+}
+
+func (c *Client) SendInfo(id string) {
+	c.conn.WriteJSON(Info{ID: id})
 }
 
 func GenUserId() string {

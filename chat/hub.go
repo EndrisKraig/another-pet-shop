@@ -1,7 +1,7 @@
 package chat
 
 import (
-	"encoding/json"
+	"time"
 )
 
 //credit for https://hoohoo.top/blog/20220320172715-go-websocket/
@@ -13,7 +13,7 @@ type Hub struct {
 	clients map[*Client]bool
 
 	// Inbound messages from the clients.
-	broadcast chan []byte
+	broadcast chan Message
 
 	// Register requests from the clients.
 	register chan *Client
@@ -24,7 +24,7 @@ type Hub struct {
 
 func NewHub() *Hub {
 	return &Hub{
-		broadcast:  make(chan []byte),
+		broadcast:  make(chan Message),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),
@@ -37,9 +37,10 @@ func (h *Hub) Run() {
 		case client := <-h.register:
 			clientId := client.ID
 			for client := range h.clients {
-				msg := []byte("some one join room (ID: " + clientId + ")")
+				msg := Message{Sender: "System", SendAt: time.Now(), Text: "Some one connected: " + clientId}
 				client.send <- msg
 			}
+			client.SendInfo(clientId)
 
 			h.clients[client] = true
 
@@ -50,12 +51,11 @@ func (h *Hub) Run() {
 				close(client.send)
 			}
 			for client := range h.clients {
-				msg := []byte("some one leave room (ID:" + clientId + ")")
+				msg := Message{Sender: "System", SendAt: time.Now(), Text: "Some one leave: " + clientId}
 				client.send <- msg
 			}
 		case userMessage := <-h.broadcast:
 			var data map[string][]byte
-			json.Unmarshal(userMessage, &data)
 
 			for client := range h.clients {
 				//prevent self receive the message
@@ -63,7 +63,7 @@ func (h *Hub) Run() {
 					continue
 				}
 				select {
-				case client.send <- data["message"]:
+				case client.send <- userMessage:
 				default:
 					close(client.send)
 					delete(h.clients, client)
