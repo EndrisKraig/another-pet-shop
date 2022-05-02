@@ -90,7 +90,7 @@ func (c *Client) readPump() {
 		}
 		var data *Message = &Message{}
 		fmt.Println("here")
-		fmt.Println(string(p))
+		fmt.Println(string(p[:]))
 		err = json.Unmarshal(p, data)
 		if err != nil {
 			fmt.Println(err)
@@ -126,7 +126,7 @@ func (c *Client) writePump() {
 			if err != nil {
 				return
 			}
-			message.Sender = c.ID
+			//message.Sender = c.ID
 			message.SendAt = time.Now()
 			jsonText, _ := json.Marshal(message)
 
