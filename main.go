@@ -20,5 +20,6 @@ func main() {
 	animalController := NewAnimalController()
 	referenceController := NewReferenceController()
 	specialOfferController := NewSpecialOfferController()
-	controller.Init(loginController, animalController, profileController, referenceController, specialOfferController)
+	chatController := NewChatController()
+	controller.Init(loginController, animalController, profileController, referenceController, specialOfferController, chatController)
 }

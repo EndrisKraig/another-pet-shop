@@ -53,3 +53,10 @@ func NewSpecialOfferController() controller.SpecialOfferController {
 	specialOfferController := controller.NewSpecialOfferController(specialOfferService)
 	return specialOfferController
 }
+
+func NewChatController() controller.ChatController {
+	chatRepository := db.NewChatRepository()
+	chatService := service.NewChatService(chatRepository)
+	chatController := controller.NewChatController(chatService)
+	return chatController
+}
