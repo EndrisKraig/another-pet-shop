@@ -1,6 +1,8 @@
 package chat
 
 import (
+	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -32,17 +34,22 @@ func NewHub() *Hub {
 }
 
 func (h *Hub) Run() {
+	fmt.Println("Hub started!")
 	for {
 		select {
 		case client := <-h.register:
-			clientId := client.ID
-			for client := range h.clients {
-				msg := Message{Sender: "System", SendAt: time.Now(), Text: "Some one connected: " + clientId}
-				client.send <- msg
-			}
-			client.SendInfo(clientId)
+			_, ok := h.clients[client]
+			if client.verified && !ok {
 
-			h.clients[client] = true
+				// clientId := client.ID
+				// for client := range h.clients {
+				// 	msg := Message{Sender: 777, SendAt: time.Now(), Text: "Some one connected: " + strconv.Itoa(clientId)}
+				// 	client.send <- msg
+				// }
+
+				h.clients[client] = true
+				fmt.Println(h.clients[client])
+			}
 
 		case client := <-h.unregister:
 			clientId := client.ID
@@ -51,17 +58,17 @@ func (h *Hub) Run() {
 				close(client.send)
 			}
 			for client := range h.clients {
-				msg := Message{Sender: "System", SendAt: time.Now(), Text: "Some one leave: " + clientId}
+				msg := Message{Sender: 777, SendAt: time.Now(), Text: "Some one leave: " + strconv.Itoa(clientId)}
 				client.send <- msg
 			}
 		case userMessage := <-h.broadcast:
-			var data map[string][]byte
 
 			for client := range h.clients {
+
 				//prevent self receive the message
-				if client.ID == string(data["id"]) {
-					continue
-				}
+				// if client.ID == userMessage.Sender {
+				// 	continue
+				// }
 				select {
 				case client.send <- userMessage:
 				default:

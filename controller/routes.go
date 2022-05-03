@@ -6,7 +6,6 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
-	"playground.io/another-pet-store/chat"
 	"playground.io/another-pet-store/middleware"
 )
 
@@ -25,9 +24,6 @@ func Init(loginController LoginController, animalController AnimalController, pr
 		MaxAge: 12 * time.Hour,
 	}))
 
-	hub := chat.NewHub()
-	go hub.Run()
-
 	router.POST("/login", loginController.Login)
 	router.POST("/user", loginController.AddUser)
 	router.GET("/me", middleware.AuthorizeJWT(), loginController.Me)
@@ -38,7 +34,8 @@ func Init(loginController LoginController, animalController AnimalController, pr
 	router.POST("/animals", animalController.AddAnimal)
 	router.POST("/animals/:id", middleware.AuthorizeJWT(), animalController.UpdateAnimal)
 	router.GET("/references", referenceController.GetReferences)
-	router.GET("/chat", func(c *gin.Context) { chat.ServeWs(hub, c.Writer, c.Request) })
+	router.GET("/chat/rooms/:id", chatController.Connect)
+	router.GET("/chat/ticket", middleware.AuthorizeJWT(), chatController.GetTicket)
 	router.POST("/chat/rooms", chatController.CreateRoom)
 	router.GET("/chat/rooms", chatController.GetAllRooms)
 	router.Run("localhost:8080")

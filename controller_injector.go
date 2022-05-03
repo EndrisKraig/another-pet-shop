@@ -38,6 +38,6 @@ func NewSpecialOfferController() controller.SpecialOfferController {
 }
 
 func NewChatController() controller.ChatController {
-	wire.Build(controller.NewChatController, service.NewChatService, db.NewChatRepository)
+	wire.Build(controller.NewChatController, service.NewChatService, db.NewChatRepository, service.NewTicketService)
 	return &controller.SimpleChatController{}
 }

@@ -57,6 +57,7 @@ func NewSpecialOfferController() controller.SpecialOfferController {
 func NewChatController() controller.ChatController {
 	chatRepository := db.NewChatRepository()
 	chatService := service.NewChatService(chatRepository)
-	chatController := controller.NewChatController(chatService)
+	ticketService := service.NewTicketService()
+	chatController := controller.NewChatController(chatService, ticketService)
 	return chatController
 }

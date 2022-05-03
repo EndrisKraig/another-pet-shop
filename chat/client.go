@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"playground.io/another-pet-store/service"
 
 	"github.com/gorilla/websocket"
 )
@@ -40,30 +41,33 @@ var upgrader = websocket.Upgrader{
 }
 
 type User struct {
-	ID      string
+	ID      int
 	Addr    string
 	EnterAt time.Time
 }
 
 type Message struct {
-	Sender string    `json:"sender"`
+	Sender int       `json:"sender"`
 	Text   string    `json:"text"`
 	SendAt time.Time `json:"sendAt"`
 }
 
-type Info struct {
-	ID string `json:"id"`
+type Ticket struct {
+	Value string `json:"ticket"`
 }
 
 // Client is a middleman between the websocket connection and the hub.
 type Client struct {
-	hub *Hub
+	hub           *Hub
+	ticketService service.TicketService
 
 	// The websocket connection.
 	conn *websocket.Conn
 
 	// Buffered channel of outbound messages.
 	send chan Message
+	//is ticket valid
+	verified bool
 	User
 }
 
@@ -88,16 +92,38 @@ func (c *Client) readPump() {
 			}
 			break
 		}
-		var data *Message = &Message{}
-		fmt.Println("here")
-		fmt.Println(string(p[:]))
-		err = json.Unmarshal(p, data)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		if c.verified {
+			var data *Message = &Message{}
+			err = json.Unmarshal(p, data)
+			data.Sender = c.ID
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
 
-		c.hub.broadcast <- *data
+			c.hub.broadcast <- *data
+		} else {
+			var ticket *Ticket = new(Ticket)
+			err = json.Unmarshal(p, ticket)
+
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			ticketService := c.ticketService
+			profileId, err := ticketService.ReadTicket(ticket.Value)
+			if err != nil {
+				c.hub.unregister <- c
+				c.conn.Close()
+				fmt.Println(err)
+			}
+
+			c.ID = profileId
+			c.verified = true
+			fmt.Println("Registered")
+			c.hub.register <- c
+		}
 	}
 }
 
@@ -126,7 +152,7 @@ func (c *Client) writePump() {
 			if err != nil {
 				return
 			}
-			//message.Sender = c.ID
+
 			message.SendAt = time.Now()
 			jsonText, _ := json.Marshal(message)
 
@@ -153,15 +179,14 @@ func (c *Client) writePump() {
 }
 
 // serveWs handles websocket requests from the peer.
-func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
+func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request, ticketService service.TicketService) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	client := &Client{hub: hub, conn: conn, send: make(chan Message, 256)}
+	client := &Client{hub: hub, ticketService: ticketService, conn: conn, send: make(chan Message, 256), verified: false}
 	client.hub.register <- client
-	client.ID = GenUserId()
 	client.Addr = conn.RemoteAddr().String()
 	client.EnterAt = time.Now()
 
@@ -171,10 +196,6 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	go client.readPump()
 
 	//client.send <- []byte("Welcome")
-}
-
-func (c *Client) SendInfo(id string) {
-	c.conn.WriteJSON(Info{ID: id})
 }
 
 func GenUserId() string {
