@@ -41,11 +41,11 @@ func (h *Hub) Run() {
 			_, ok := h.clients[client]
 			if client.verified && !ok {
 
-				// clientId := client.ID
-				// for client := range h.clients {
-				// 	msg := Message{Sender: 777, SendAt: time.Now(), Text: "Some one connected: " + strconv.Itoa(clientId)}
-				// 	client.send <- msg
-				// }
+				clientId := client.ID
+				for client := range h.clients {
+					msg := Message{Sender: 777, SendAt: time.Now(), Text: "Some one connected: " + strconv.Itoa(clientId)}
+					client.send <- msg
+				}
 
 				h.clients[client] = true
 				fmt.Println(h.clients[client])
@@ -64,11 +64,12 @@ func (h *Hub) Run() {
 		case userMessage := <-h.broadcast:
 
 			for client := range h.clients {
-
 				//prevent self receive the message
-				// if client.ID == userMessage.Sender {
-				// 	continue
-				// }
+				fmt.Printf("Client: %v, Sender: %v", client.ID, userMessage.Sender)
+
+				if client.ID == userMessage.Sender {
+					continue
+				}
 				select {
 				case client.send <- userMessage:
 				default:
