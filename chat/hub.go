@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+
+	"playground.io/another-pet-store/dto"
+	"playground.io/another-pet-store/service"
 )
 
 //credit for https://hoohoo.top/blog/20220320172715-go-websocket/
@@ -11,30 +14,37 @@ import (
 // Hub maintains the set of active clients and broadcasts messages to the
 // clients.
 type Hub struct {
+	//aka room id
+	id int
 	// Registered clients.
 	clients map[*Client]bool
 
 	// Inbound messages from the clients.
-	broadcast chan Message
+	broadcast chan dto.Message
 
 	// Register requests from the clients.
 	register chan *Client
 
 	// Unregister requests from clients.
 	unregister chan *Client
+
+	messageService service.MessageService
 }
 
-func NewHub() *Hub {
+func NewHub(id int, messageService service.MessageService) *Hub {
 	return &Hub{
-		broadcast:  make(chan Message),
-		register:   make(chan *Client),
-		unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
+		id:             id,
+		broadcast:      make(chan dto.Message),
+		register:       make(chan *Client),
+		unregister:     make(chan *Client),
+		clients:        make(map[*Client]bool),
+		messageService: messageService,
 	}
 }
 
 func (h *Hub) Run() {
 	fmt.Println("Hub started!")
+	messageService := h.messageService
 	for {
 		select {
 		case client := <-h.register:
@@ -43,7 +53,7 @@ func (h *Hub) Run() {
 
 				clientId := client.ID
 				for client := range h.clients {
-					msg := Message{Sender: 777, SendAt: time.Now(), Text: "Some one connected: " + strconv.Itoa(clientId)}
+					msg := dto.Message{Sender: 777, SendAt: time.Now(), Text: "Some one connected: " + strconv.Itoa(clientId)}
 					client.send <- msg
 				}
 
@@ -58,11 +68,11 @@ func (h *Hub) Run() {
 				close(client.send)
 			}
 			for client := range h.clients {
-				msg := Message{Sender: 777, SendAt: time.Now(), Text: "Some one leave: " + strconv.Itoa(clientId)}
+				msg := dto.Message{Sender: 777, SendAt: time.Now(), Text: "Some one leave: " + strconv.Itoa(clientId)}
 				client.send <- msg
 			}
 		case userMessage := <-h.broadcast:
-
+			messageService.SaveMessage(userMessage, h.id)
 			for client := range h.clients {
 				//prevent self receive the message
 				fmt.Printf("Client: %v, Sender: %v", client.ID, userMessage.Sender)

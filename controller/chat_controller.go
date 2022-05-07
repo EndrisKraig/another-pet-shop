@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"playground.io/another-pet-store/chat"
+	"playground.io/another-pet-store/db"
 	"playground.io/another-pet-store/dto"
 	"playground.io/another-pet-store/middleware"
 	"playground.io/another-pet-store/service"
@@ -14,7 +15,7 @@ import (
 
 var upgrader = websocket.Upgrader{}
 
-var Hub = chat.NewHub()
+var Hub = chat.NewHub(1, service.NewMessageService(db.NewMessageRepository()))
 
 type ChatController interface {
 	Chat(c *gin.Context)

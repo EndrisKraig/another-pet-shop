@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"playground.io/another-pet-store/dto"
 	"playground.io/another-pet-store/service"
 
 	"github.com/gorilla/websocket"
@@ -40,22 +41,6 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-type User struct {
-	ID      int
-	Addr    string
-	EnterAt time.Time
-}
-
-type Message struct {
-	Sender int       `json:"sender"`
-	Text   string    `json:"text"`
-	SendAt time.Time `json:"sendAt"`
-}
-
-type Ticket struct {
-	Value string `json:"ticket"`
-}
-
 // Client is a middleman between the websocket connection and the hub.
 type Client struct {
 	hub           *Hub
@@ -65,10 +50,10 @@ type Client struct {
 	conn *websocket.Conn
 
 	// Buffered channel of outbound messages.
-	send chan Message
+	send chan dto.Message
 	//is ticket valid
 	verified bool
-	User
+	dto.ChatUser
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -93,7 +78,7 @@ func (c *Client) readPump() {
 			break
 		}
 		if c.verified {
-			var data *Message = &Message{}
+			var data *dto.Message = &dto.Message{}
 			err = json.Unmarshal(p, data)
 			data.Sender = c.ID
 			if err != nil {
@@ -103,7 +88,7 @@ func (c *Client) readPump() {
 
 			c.hub.broadcast <- *data
 		} else {
-			var ticket *Ticket = new(Ticket)
+			var ticket *dto.Ticket = new(dto.Ticket)
 			err = json.Unmarshal(p, ticket)
 
 			if err != nil {
@@ -112,7 +97,7 @@ func (c *Client) readPump() {
 			}
 
 			ticketService := c.ticketService
-			profileId, err := ticketService.ReadTicket(ticket.Value)
+			profileId, err := ticketService.ReadTicket(ticket.Ticket)
 			if err != nil {
 				c.hub.unregister <- c
 				c.conn.Close()
@@ -185,7 +170,7 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request, ticketService ser
 		log.Println(err)
 		return
 	}
-	client := &Client{hub: hub, ticketService: ticketService, conn: conn, send: make(chan Message, 256), verified: false}
+	client := &Client{hub: hub, ticketService: ticketService, conn: conn, send: make(chan dto.Message, 256), verified: false}
 	client.hub.register <- client
 	client.Addr = conn.RemoteAddr().String()
 	client.EnterAt = time.Now()
