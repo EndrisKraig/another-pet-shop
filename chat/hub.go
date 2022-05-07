@@ -42,6 +42,11 @@ func NewHub(id int, messageService service.MessageService) *Hub {
 	}
 }
 
+type History struct {
+	Type     string        `json:"type"`
+	Messages []dto.Message `json:"messages"`
+}
+
 func (h *Hub) Run() {
 	fmt.Println("Hub started!")
 	messageService := h.messageService
@@ -50,7 +55,12 @@ func (h *Hub) Run() {
 		case client := <-h.register:
 			_, ok := h.clients[client]
 			if client.verified && !ok {
-
+				messages, err := messageService.GetHistory(h.id)
+				if err != nil {
+					fmt.Println(err)
+				}
+				history := History{Messages: messages, Type: "history"}
+				client.sendHistory(history)
 				clientId := client.ID
 				for client := range h.clients {
 					msg := dto.Message{Sender: 777, SendAt: time.Now(), Text: "Some one connected: " + strconv.Itoa(clientId)}

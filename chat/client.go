@@ -118,11 +118,17 @@ func (c *Client) readPump() {
 // application ensures that there is at most one writer to a connection by
 // executing all writes from this goroutine.
 func (c *Client) writePump() {
+	//TODO wait reading until client is verified
+	// for !c.verified {
+	// 	fmt.Printf("Client %v is wainting\n", c.ID)
+	// 	time.Sleep(time.Second * 5)
+	// }
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
 		c.conn.Close()
 	}()
+	fmt.Printf("Client %v is registered\n", c.ID)
 	for {
 		select {
 		case message, ok := <-c.send:
@@ -186,4 +192,23 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request, ticketService ser
 func GenUserId() string {
 	uid := uuid.NewString()
 	return uid
+}
+
+func (c *Client) sendHistory(history History) {
+	w, err := c.conn.NextWriter(websocket.TextMessage)
+	if err != nil {
+		return
+	}
+
+	jsonText, err := json.Marshal(history)
+
+	if err != nil {
+		return
+	}
+
+	w.Write(jsonText)
+
+	if err := w.Close(); err != nil {
+		return
+	}
 }

@@ -59,10 +59,10 @@ func (t *SimpleMessageRepository) GetHistory(roomId int) ([]model.Message, error
 			return nil, fmt.Errorf("error during obtaining result rows values: %w", err)
 		}
 		id := values[0].(int64)
-		profile_id := values[1].(int)
+		profile_id := values[1].(int32)
 		text := values[2].(string)
 
-		messages = append(messages, model.Message{Id: int(id), ProfileId: profile_id, Text: text})
+		messages = append(messages, model.Message{Id: int(id), ProfileId: int(profile_id), Text: text})
 
 	}
 	return messages, nil
