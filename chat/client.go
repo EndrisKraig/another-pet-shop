@@ -16,13 +16,16 @@ import (
 
 const (
 	// Time allowed to write a message to the peer.
-	writeWait = 5 * time.Second
+	writeWait = 10 * time.Second
 
 	// Time allowed to read the next pong message from the peer.
-	pongWait = 5 * time.Second
+	pongWait = 10 * time.Second
 
 	// Send pings to peer with this period. Must be less than pongWait.
 	pingPeriod = (pongWait * 9) / 10
+
+	//time waiting for registartion process
+	registerWait = 5 * time.Second
 
 	// Maximum message size allowed from peer.
 	maxMessageSize = 512
@@ -118,18 +121,18 @@ func (c *Client) readPump() {
 // application ensures that there is at most one writer to a connection by
 // executing all writes from this goroutine.
 func (c *Client) writePump() {
-	//TODO wait reading until client is verified
-	// for !c.verified {
-	// 	fmt.Printf("Client %v is wainting\n", c.ID)
-	// 	time.Sleep(time.Second * 5)
-	// }
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
 		c.conn.Close()
 	}()
-	fmt.Printf("Client %v is registered\n", c.ID)
+
 	for {
+		//prevent sending messages to unverified client
+		for !c.verified {
+			fmt.Printf("Client %v is wainting\n", c.ID)
+			time.Sleep(registerWait)
+		}
 		select {
 		case message, ok := <-c.send:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
