@@ -19,7 +19,6 @@ func NewTicketService() TicketService {
 }
 
 func (s *SimpleTicketService) CreateTicket(profileId int) string {
-	fmt.Println("Gen start")
 	ticket := shortTicket(10)
 	fmt.Println(ticket)
 	s.tickets[ticket] = profileId
