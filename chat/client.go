@@ -80,6 +80,7 @@ func (c *Client) readPump() {
 			}
 			break
 		}
+		//If client verified then he can send messages
 		if c.verified {
 			var data *dto.Message = &dto.Message{}
 			err = json.Unmarshal(p, data)
@@ -91,6 +92,7 @@ func (c *Client) readPump() {
 
 			c.hub.broadcast <- *data
 		} else {
+			//Else he must send ticket to provide hes identity and finish registration process
 			var ticket *dto.Ticket = new(dto.Ticket)
 			err = json.Unmarshal(p, ticket)
 
@@ -109,7 +111,6 @@ func (c *Client) readPump() {
 
 			c.ID = profileId
 			c.verified = true
-			fmt.Println("Registered")
 			c.hub.register <- c
 		}
 	}
@@ -189,7 +190,6 @@ func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request, ticketService ser
 	go client.writePump()
 	go client.readPump()
 
-	//client.send <- []byte("Welcome")
 }
 
 func GenUserId() string {

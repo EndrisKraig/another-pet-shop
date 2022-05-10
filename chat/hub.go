@@ -48,7 +48,6 @@ type History struct {
 }
 
 func (h *Hub) Run() {
-	fmt.Println("Hub started!")
 	messageService := h.messageService
 	for {
 		select {
@@ -68,7 +67,6 @@ func (h *Hub) Run() {
 				}
 
 				h.clients[client] = true
-				fmt.Println(h.clients[client])
 			}
 
 		case client := <-h.unregister:
@@ -85,8 +83,6 @@ func (h *Hub) Run() {
 			messageService.SaveMessage(userMessage, h.id)
 			for client := range h.clients {
 				//prevent self receive the message
-				fmt.Printf("Client: %v, Sender: %v", client.ID, userMessage.Sender)
-
 				if client.ID == userMessage.Sender {
 					continue
 				}
