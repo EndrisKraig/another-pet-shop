@@ -20,5 +20,7 @@ func main() {
 	animalController := NewAnimalController()
 	referenceController := NewReferenceController()
 	specialOfferController := NewSpecialOfferController()
-	controller.Init(loginController, animalController, profileController, referenceController, specialOfferController)
+	chatController := NewChatController()
+	go controller.Hub.Run()
+	controller.Init(loginController, animalController, profileController, referenceController, specialOfferController, chatController)
 }
