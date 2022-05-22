@@ -11,25 +11,25 @@ type MessageService interface {
 	GetHistory(roomId int) ([]dto.Message, error)
 }
 
-type SimpleMessageServie struct {
+type SimpleMessageService struct {
 	messageRepository db.MessageRepository
 }
 
 func NewMessageService(repository db.MessageRepository) MessageService {
-	return &SimpleMessageServie{messageRepository: repository}
+	return &SimpleMessageService{messageRepository: repository}
 }
 
-func (s *SimpleMessageServie) SaveMessage(message dto.Message, roomId int) error {
-	return s.messageRepository.SaveMessage(&model.Message{Text: message.Text, ProfileId: message.Sender, RoomId: roomId})
+func (s *SimpleMessageService) SaveMessage(message dto.Message, roomId int) error {
+	return s.messageRepository.SaveMessage(&model.Message{Text: message.Text, ProfileId: message.Sender, RoomId: roomId, Format: message.Format})
 }
-func (s *SimpleMessageServie) GetHistory(roomId int) ([]dto.Message, error) {
+func (s *SimpleMessageService) GetHistory(roomId int) ([]dto.Message, error) {
 	messages, err := s.messageRepository.GetHistory(roomId)
 	if err != nil {
 		return nil, err
 	}
 	dtoMessages := make([]dto.Message, 0)
 	for _, v := range messages {
-		dtoMessages = append(dtoMessages, dto.Message{Text: v.Text, Sender: v.ProfileId})
+		dtoMessages = append(dtoMessages, dto.Message{Text: v.Text, Sender: v.ProfileId, Format: v.Format})
 	}
 	return dtoMessages, nil
 }

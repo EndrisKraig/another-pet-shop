@@ -15,7 +15,7 @@ import (
 
 var upgrader = websocket.Upgrader{}
 
-var Hub = chat.NewHub(1, service.NewMessageService(db.NewMessageRepository()))
+var Hub = chat.NewHub(1100, service.NewMessageService(db.NewMessageRepository()))
 
 type ChatController interface {
 	Chat(c *gin.Context)

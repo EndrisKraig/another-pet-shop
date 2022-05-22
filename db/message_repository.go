@@ -26,10 +26,10 @@ func (t *SimpleMessageRepository) SaveMessage(message *model.Message) error {
 	if err != nil {
 		return err
 	}
+	fmt.Print(message.Text)
+	query := "INSERT INTO messages(profile_id, room_id, creation_date, text_body, send_status, format_id) VALUES ($1, $2, $3, $4, $5, (SELECT id FROM message_format WHERE label = $6))"
 
-	query := "INSERT INTO messages(profile_id, room_id, creation_date, text_body, send_status) VALUES ($1, $2, $3, $4, $5)"
-
-	_, err = conn.Exec(context.Background(), query, message.ProfileId, message.RoomId, time.Now(), message.Text, 0)
+	_, err = conn.Exec(context.Background(), query, message.ProfileId, message.RoomId, time.Now(), message.Text, 0, message.Format)
 	if err != nil {
 		return err
 	}
@@ -44,7 +44,7 @@ func (t *SimpleMessageRepository) GetHistory(roomId int) ([]model.Message, error
 		return nil, err
 	}
 
-	query := "SELECT  id, profile_id, text_body FROM messages WHERE room_id = $1"
+	query := "SELECT  messages.id, profile_id, text_body, label FROM messages JOIN message_format ON messages.format_id = message_format.id WHERE room_id = $1"
 
 	rows, err := conn.Query(context.Background(), query, roomId)
 
@@ -61,8 +61,8 @@ func (t *SimpleMessageRepository) GetHistory(roomId int) ([]model.Message, error
 		id := values[0].(int64)
 		profile_id := values[1].(int32)
 		text := values[2].(string)
-
-		messages = append(messages, model.Message{Id: int(id), ProfileId: int(profile_id), Text: text})
+		format := values[3].(string)
+		messages = append(messages, model.Message{Id: int(id), ProfileId: int(profile_id), Text: text, Format: format})
 
 	}
 	return messages, nil

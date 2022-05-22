@@ -1,6 +1,8 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type Message struct {
 	Id           int
@@ -9,4 +11,5 @@ type Message struct {
 	CreationDate time.Time
 	Text         string
 	SendStatus   int
+	Format       string
 }

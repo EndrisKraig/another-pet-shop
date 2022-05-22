@@ -15,7 +15,7 @@ type SimpleSpecialOfferService struct {
 	specialOfferRepository db.SpecialOfferRepository
 }
 
-func NewSpecialOfferServie(specialOfferRepository db.SpecialOfferRepository) SpecialOfferService {
+func NewSpecialOfferService(specialOfferRepository db.SpecialOfferRepository) SpecialOfferService {
 	return &SimpleSpecialOfferService{specialOfferRepository: specialOfferRepository}
 }
 

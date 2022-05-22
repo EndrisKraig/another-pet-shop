@@ -49,7 +49,7 @@ func NewReferenceController() controller.ReferenceController {
 
 func NewSpecialOfferController() controller.SpecialOfferController {
 	specialOfferRepository := db.NewSpecialOfferRepository()
-	specialOfferService := service.NewSpecialOfferServie(specialOfferRepository)
+	specialOfferService := service.NewSpecialOfferService(specialOfferRepository)
 	specialOfferController := controller.NewSpecialOfferController(specialOfferService)
 	return specialOfferController
 }
@@ -60,4 +60,11 @@ func NewChatController() controller.ChatController {
 	ticketService := service.NewTicketService()
 	chatController := controller.NewChatController(chatService, ticketService)
 	return chatController
+}
+
+func NewStickerController() controller.StickerController {
+	stickerRepository := db.NewStickerRepository()
+	stickerService := service.NewStickerService(stickerRepository)
+	stickerController := controller.NewStickerController(stickerService)
+	return stickerController
 }

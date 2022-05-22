@@ -80,7 +80,10 @@ func (h *Hub) Run() {
 				client.send <- msg
 			}
 		case userMessage := <-h.broadcast:
-			messageService.SaveMessage(userMessage, h.id)
+			err := messageService.SaveMessage(userMessage, h.id)
+			if err != nil {
+				fmt.Print(err)
+			}
 			for client := range h.clients {
 				//prevent self receive the message
 				if client.ID == userMessage.Sender {

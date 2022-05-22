@@ -12,6 +12,7 @@ type Message struct {
 	Sender int       `json:"sender"`
 	Text   string    `json:"text"`
 	SendAt time.Time `json:"sendAt"`
+	Format string    `json:"format"`
 }
 
 type Ticket struct {

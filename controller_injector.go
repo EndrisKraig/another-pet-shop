@@ -33,11 +33,16 @@ func NewReferenceController() controller.ReferenceController {
 }
 
 func NewSpecialOfferController() controller.SpecialOfferController {
-	wire.Build(controller.NewSpecialOfferController, service.NewSpecialOfferServie, db.NewSpecialOfferRepository)
+	wire.Build(controller.NewSpecialOfferController, service.NewSpecialOfferService, db.NewSpecialOfferRepository)
 	return &controller.SimpleOfferController{}
 }
 
 func NewChatController() controller.ChatController {
 	wire.Build(controller.NewChatController, service.NewChatService, db.NewChatRepository, service.NewTicketService)
 	return &controller.SimpleChatController{}
+}
+
+func NewStickerController() controller.StickerController {
+	wire.Build(controller.NewStickerController, service.NewStickerService, db.NewStickerRepository)
+	return &controller.SimpleStickerController{}
 }
