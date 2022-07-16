@@ -6,7 +6,7 @@ import (
 	"playground.io/another-pet-store/db"
 )
 
-var profileService = NewProfileService(db.NewProfileRepository())
+var profileService = NewProfileService(db.NewProfileRepository(&db.PgConnection{}))
 
 func TestBalanceChange(t *testing.T) {
 	balance, err := profileService.ChangeBalance(5, 10)

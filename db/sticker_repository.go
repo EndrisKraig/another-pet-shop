@@ -12,14 +12,15 @@ type StickerRepository interface {
 }
 
 type SimpleStickerRepository struct {
+	connection Connection
 }
 
-func NewStickerRepository() StickerRepository {
-	return new(SimpleStickerRepository)
+func NewStickerRepository(connection Connection) StickerRepository {
+	return &SimpleStickerRepository{connection: connection}
 }
 
 func (r *SimpleStickerRepository) FindAllStickers() ([]model.Sticker, error) {
-	conn, err := GetConnection()
+	conn, err := r.connection.GetConnection()
 
 	if err != nil {
 		return nil, err

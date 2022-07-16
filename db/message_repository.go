@@ -14,14 +14,15 @@ type MessageRepository interface {
 }
 
 type SimpleMessageRepository struct {
+	connection Connection
 }
 
-func NewMessageRepository() MessageRepository {
-	return new(SimpleMessageRepository)
+func NewMessageRepository(connection Connection) MessageRepository {
+	return &SimpleMessageRepository{connection: connection}
 }
 
-func (t *SimpleMessageRepository) SaveMessage(message *model.Message) error {
-	conn, err := GetConnection()
+func (r *SimpleMessageRepository) SaveMessage(message *model.Message) error {
+	conn, err := r.connection.GetConnection()
 
 	if err != nil {
 		return err
@@ -37,8 +38,8 @@ func (t *SimpleMessageRepository) SaveMessage(message *model.Message) error {
 	return nil
 }
 
-func (t *SimpleMessageRepository) GetHistory(roomId int) ([]model.Message, error) {
-	conn, err := GetConnection()
+func (r *SimpleMessageRepository) GetHistory(roomId int) ([]model.Message, error) {
+	conn, err := r.connection.GetConnection()
 
 	if err != nil {
 		return nil, err

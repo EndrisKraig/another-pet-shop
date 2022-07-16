@@ -12,14 +12,15 @@ type ChatRepository interface {
 }
 
 type SimpleChatRepository struct {
+	connection Connection
 }
 
-func NewChatRepository() ChatRepository {
-	return new(SimpleChatRepository)
+func NewChatRepository(connection Connection) ChatRepository {
+	return &SimpleChatRepository{connection: connection}
 }
 
 func (r *SimpleChatRepository) CreateChatRoom(room *model.ChatRoom) error {
-	conn, err := GetConnection()
+	conn, err := r.connection.GetConnection()
 
 	if err != nil {
 		return err
@@ -33,7 +34,7 @@ func (r *SimpleChatRepository) CreateChatRoom(room *model.ChatRoom) error {
 }
 
 func (r *SimpleChatRepository) FindAllRooms() (*model.ChatRooms, error) {
-	conn, err := GetConnection()
+	conn, err := r.connection.GetConnection()
 
 	if err != nil {
 		return nil, err

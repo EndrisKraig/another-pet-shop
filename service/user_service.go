@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"os"
 
 	"golang.org/x/crypto/bcrypt"
 	"playground.io/another-pet-store/db"
@@ -11,31 +10,35 @@ import (
 )
 
 type UserService interface {
-	RegisterUser(user *dto.User)
-	FindUserByUsername(username string) *model.User
+	RegisterUser(user *dto.User) error
+	FindUserByUsername(username string) (*model.User, error)
 }
 
 type SimpleUserService struct {
+	userRepository db.UserRepository
 }
 
-func NewUserService() UserService {
-	return &SimpleUserService{}
+func NewUserService(repository db.UserRepository) UserService {
+	return &SimpleUserService{userRepository: repository}
 }
 
-func (s *SimpleUserService) FindUserByUsername(username string) *model.User {
-	return db.FindUser(username)
+func (s *SimpleUserService) FindUserByUsername(username string) (*model.User, error) {
+	user, err := s.userRepository.FindUser(username)
+	if err != nil {
+		return nil, fmt.Errorf("user '%s' not found: %w", username, err)
+	}
+	return user, nil
 }
 
-func (s *SimpleUserService) RegisterUser(userDto *dto.User) {
-	fmt.Println(userDto.Password)
+func (s *SimpleUserService) RegisterUser(userDto *dto.User) error {
 	hash, err := hashPassword(userDto.Password)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to generate hash: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("failed to generate hash: %v", err)
 	}
 
 	var user = model.User{Username: userDto.Username, Hash: hash, Email: userDto.Email}
-	db.AddUser(&user)
+	s.userRepository.AddUser(&user)
+	return nil
 }
 
 func hashPassword(password string) (string, error) {

@@ -17,14 +17,15 @@ type ReferenceRepository interface {
 }
 
 type SimpleReferenceRepository struct {
+	connection Connection
 }
 
-func NewReferenceRepository() ReferenceRepository {
-	return &SimpleReferenceRepository{}
+func NewReferenceRepository(connection Connection) ReferenceRepository {
+	return &SimpleReferenceRepository{connection: connection}
 }
 
-func (repository SimpleReferenceRepository) GetReferences(name string) (*model.References, error) {
-	conn, err := GetConnection()
+func (r SimpleReferenceRepository) GetReferences(name string) (*model.References, error) {
+	conn, err := r.connection.GetConnection()
 
 	if err != nil {
 		return nil, err

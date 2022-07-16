@@ -14,14 +14,16 @@ type ProfileRepository interface {
 	UpdateBalance(profileId int64, newBalance float64) error
 }
 
-type SimpleProfileRepository struct{}
-
-func NewProfileRepository() ProfileRepository {
-	return &SimpleProfileRepository{}
+type SimpleProfileRepository struct {
+	connection Connection
 }
 
-func (rep *SimpleProfileRepository) CreateProfile(userId int) error {
-	conn, err := GetConnection()
+func NewProfileRepository(connection Connection) ProfileRepository {
+	return &SimpleProfileRepository{connection: connection}
+}
+
+func (r *SimpleProfileRepository) CreateProfile(userId int) error {
+	conn, err := r.connection.GetConnection()
 
 	if err != nil {
 		return err
@@ -35,8 +37,8 @@ func (rep *SimpleProfileRepository) CreateProfile(userId int) error {
 	return nil
 }
 
-func (rep *SimpleProfileRepository) GetProfileByUserId(ID int64) (*model.Profile, error) {
-	conn, err := GetConnection()
+func (r *SimpleProfileRepository) GetProfileByUserId(ID int64) (*model.Profile, error) {
+	conn, err := r.connection.GetConnection()
 
 	if err != nil {
 		return nil, err
@@ -56,8 +58,8 @@ func (rep *SimpleProfileRepository) GetProfileByUserId(ID int64) (*model.Profile
 	return &model.Profile{ID: id, Nickname: nickname, Image_url: image_url.ValueOrZero(), Notes: notes.ValueOrZero(), Balance: float32(balance.ValueOrZero())}, nil
 }
 
-func (rep *SimpleProfileRepository) UpdateBalance(profileId int64, newBalance float64) error {
-	conn, err := GetConnection()
+func (r *SimpleProfileRepository) UpdateBalance(profileId int64, newBalance float64) error {
+	conn, err := r.connection.GetConnection()
 
 	if err != nil {
 		return err

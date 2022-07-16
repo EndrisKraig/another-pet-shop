@@ -23,7 +23,10 @@ func NewLoginService(userService UserService, profileService ProfileService, jwt
 }
 
 func (loginService *SimpleLoginService) LoginUser(user *dto.User) (string, error) {
-	var dbUser = loginService.userService.FindUserByUsername(user.Username)
+	dbUser, err := loginService.userService.FindUserByUsername(user.Username)
+	if err != nil {
+		return "", fmt.Errorf("user wasn't found: %w", err)
+	}
 	profile, err := loginService.profileService.GetProfile(int(dbUser.ID))
 	if err != nil {
 		return "", fmt.Errorf("profile wasn't found: %w", err)

@@ -8,11 +8,24 @@ import (
 	"playground.io/another-pet-store/model"
 )
 
-func AddUser(user *model.User) {
-	conn, err := GetConnection()
+type UserRepository interface {
+	AddUser(user *model.User) error
+	FindUser(username string) (*model.User, error)
+}
+
+type PostgresUserRepository struct {
+	connection Connection
+}
+
+func NewUserRepository(conn Connection) UserRepository {
+	return &PostgresUserRepository{connection: conn}
+}
+
+func (r *PostgresUserRepository) AddUser(user *model.User) error {
+	conn, err := r.connection.GetConnection()
 
 	if err != nil {
-		return
+		return err
 	}
 
 	var id int64
@@ -28,14 +41,14 @@ func AddUser(user *model.User) {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
 	}
-
+	return nil
 }
 
-func FindUser(username string) *model.User {
-	conn, err := GetConnection()
+func (r *PostgresUserRepository) FindUser(username string) (*model.User, error) {
+	conn, err := r.connection.GetConnection()
 
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	var id int64
 	var hash string
@@ -47,6 +60,6 @@ func FindUser(username string) *model.User {
 		os.Exit(1)
 	}
 
-	return &model.User{ID: id, Username: username, Hash: hash, Email: email}
+	return &model.User{ID: id, Username: username, Hash: hash, Email: email}, nil
 
 }

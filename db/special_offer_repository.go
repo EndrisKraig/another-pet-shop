@@ -13,14 +13,15 @@ type SpecialOfferRepository interface {
 }
 
 type SimpleSpecialOfferRepository struct {
+	connection Connection
 }
 
-func NewSpecialOfferRepository() SpecialOfferRepository {
-	return &SimpleSpecialOfferRepository{}
+func NewSpecialOfferRepository(connection Connection) SpecialOfferRepository {
+	return &SimpleSpecialOfferRepository{connection: connection}
 }
 
-func (repository *SimpleSpecialOfferRepository) FindAllSpecialsOffers() (*model.SpecialOffers, error) {
-	conn, err := GetConnection()
+func (r *SimpleSpecialOfferRepository) FindAllSpecialsOffers() (*model.SpecialOffers, error) {
+	conn, err := r.connection.GetConnection()
 
 	if err != nil {
 		return nil, err

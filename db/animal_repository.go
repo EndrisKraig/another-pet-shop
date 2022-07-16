@@ -17,14 +17,15 @@ type AnimalRepository interface {
 }
 
 type SimpleAnimalRepository struct {
+	connection Connection
 }
 
-func NewAnimalRepository() AnimalRepository {
-	return &SimpleAnimalRepository{}
+func NewAnimalRepository(connection Connection) AnimalRepository {
+	return &SimpleAnimalRepository{connection: connection}
 }
 
-func (repository *SimpleAnimalRepository) FindAnimalById(ID int) (*model.Animal, error) {
-	conn, err := GetConnection()
+func (r *SimpleAnimalRepository) FindAnimalById(ID int) (*model.Animal, error) {
+	conn, err := r.connection.GetConnection()
 
 	if err != nil {
 		return nil, err
@@ -49,8 +50,8 @@ func (repository *SimpleAnimalRepository) FindAnimalById(ID int) (*model.Animal,
 	return &model.Animal{ID: id, Nickname: nickname, Breed: breed, Price: price, Age: age, ImageUrl: imageUrl, Title: title, Type: animaltype}, nil
 }
 
-func (repository *SimpleAnimalRepository) AddAnimal(animal model.Animal) error {
-	conn, err := GetConnection()
+func (r *SimpleAnimalRepository) AddAnimal(animal model.Animal) error {
+	conn, err := r.connection.GetConnection()
 
 	if err != nil {
 		return err
@@ -66,8 +67,8 @@ func (repository *SimpleAnimalRepository) AddAnimal(animal model.Animal) error {
 	return nil
 }
 
-func (repository *SimpleAnimalRepository) UpdateAnimal(animal model.Animal) error {
-	conn, err := GetConnection()
+func (r *SimpleAnimalRepository) UpdateAnimal(animal model.Animal) error {
+	conn, err := r.connection.GetConnection()
 
 	if err != nil {
 		return err
@@ -84,8 +85,8 @@ func (repository *SimpleAnimalRepository) UpdateAnimal(animal model.Animal) erro
 	return nil
 }
 
-func (repository *SimpleAnimalRepository) FindAllAnimals(offset int, limit int) ([]model.Animal, int, error) {
-	conn, err := GetConnection()
+func (r *SimpleAnimalRepository) FindAllAnimals(offset int, limit int) ([]model.Animal, int, error) {
+	conn, err := r.connection.GetConnection()
 
 	if err != nil {
 		return nil, 0, err
@@ -124,8 +125,8 @@ func (repository *SimpleAnimalRepository) FindAllAnimals(offset int, limit int) 
 	return animals[:], int(full_count), nil
 }
 
-func (repository *SimpleAnimalRepository) SellAnimal(animalId, profileId int, balanceCalc func(int, int) (int, error)) error {
-	conn, err := GetConnection()
+func (r *SimpleAnimalRepository) SellAnimal(animalId, profileId int, balanceCalc func(int, int) (int, error)) error {
+	conn, err := r.connection.GetConnection()
 
 	if err != nil {
 		return err
