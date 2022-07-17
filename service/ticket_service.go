@@ -20,7 +20,6 @@ func NewTicketService() TicketService {
 
 func (s *SimpleTicketService) CreateTicket(profileId int) string {
 	ticket := shortTicket(10)
-	fmt.Println(ticket)
 	s.tickets[ticket] = profileId
 	return ticket
 }
@@ -36,7 +35,6 @@ func (s *SimpleTicketService) ReadTicket(ticket string) (int, error) {
 var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
 
 func shortTicket(length int) string {
-	fmt.Println("Gen start")
 	ll := len(chars)
 	b := make([]byte, length)
 	rand.Read(b)
