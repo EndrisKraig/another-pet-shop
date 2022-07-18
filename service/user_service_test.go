@@ -78,6 +78,6 @@ func assertError(err error, t *testing.T) {
 func assertNoError(err error, t *testing.T) {
 	t.Helper()
 	if err != nil {
-		t.Errorf("Got an error but didn't want any")
+		t.Errorf("Got an error but didn't want any: %s", err.Error())
 	}
 }
