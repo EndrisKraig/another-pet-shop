@@ -16,6 +16,12 @@ type PgConnection struct {
 	connection *pgx.Conn
 }
 
+var conn Connection = &PgConnection{}
+
+func GetConnection() Connection {
+	return conn
+}
+
 func (c *PgConnection) GetConnection() (*pgx.Conn, error) {
 	if c.connection == nil {
 		conn, err := pgx.Connect(context.Background(), os.Getenv("DB_URL"))

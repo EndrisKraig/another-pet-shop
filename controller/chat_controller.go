@@ -15,23 +15,28 @@ import (
 
 var upgrader = websocket.Upgrader{}
 
-var Hub = chat.NewHub(1100, service.NewMessageService(db.NewMessageRepository()))
-
 type ChatController interface {
 	Chat(c *gin.Context)
 	CreateRoom(c *gin.Context)
 	GetAllRooms(c *gin.Context)
 	Connect(c *gin.Context)
 	GetTicket(c *gin.Context)
+	GetHub() *chat.Hub
 }
 
 type SimpleChatController struct {
 	chatService   service.ChatService
 	ticketService service.TicketService
+	hub           *chat.Hub
 }
 
-func NewChatController(chatService service.ChatService, ticketService service.TicketService) ChatController {
-	return &SimpleChatController{chatService: chatService, ticketService: ticketService}
+func (c *SimpleChatController) GetHub() *chat.Hub {
+	return c.hub
+}
+
+func NewChatController(chatService service.ChatService, ticketService service.TicketService, conn db.Connection) ChatController {
+	hub := chat.NewHub(1100, service.NewMessageService(db.NewMessageRepository(conn)))
+	return &SimpleChatController{chatService: chatService, ticketService: ticketService, hub: hub}
 }
 
 func (controller *SimpleChatController) Chat(c *gin.Context) {
@@ -92,7 +97,7 @@ func (controller *SimpleChatController) GetAllRooms(c *gin.Context) {
 }
 
 func (controller *SimpleChatController) Connect(c *gin.Context) {
-	chat.ServeWs(Hub, c.Writer, c.Request, controller.ticketService)
+	chat.ServeWs(controller.hub, c.Writer, c.Request, controller.ticketService)
 }
 
 func (controller *SimpleChatController) GetTicket(c *gin.Context) {

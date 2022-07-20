@@ -37,6 +37,7 @@ func (r *StubAnimalRepository) FindAnimalById(ID int) (*model.Animal, error) {
 	return &animal, nil
 }
 func (r *StubAnimalRepository) AddAnimal(animal model.Animal) error {
+	animal.ID = 10
 	r.animals[10] = animal
 	return nil
 }
@@ -73,7 +74,7 @@ func TestAnimal(t *testing.T) {
 	if animal == nil {
 		t.Fatalf("Nil animal, but wanted a real one")
 	}
-	// if animal.ID != 10 {
-	// 	t.Errorf("expected animal with ID %d, but got %d", 10, animal.ID)
-	// }
+	if animal.ID != 10 {
+		t.Errorf("expected animal with ID %d, but got %d", 10, animal.ID)
+	}
 }

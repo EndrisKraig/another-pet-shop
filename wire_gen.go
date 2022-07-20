@@ -15,17 +15,20 @@ import (
 // Injectors from controller_injector.go:
 
 func NewAnimalController() controller.AnimalController {
-	profileRepository := db.NewProfileRepository()
+	connection := db.GetConnection()
+	profileRepository := db.NewProfileRepository(connection)
 	profileService := service.NewProfileService(profileRepository)
-	animalRepository := db.NewAnimalRepository()
+	animalRepository := db.NewAnimalRepository(connection)
 	animalService := service.NewAnimalService(profileService, animalRepository)
 	animalController := controller.NewAnimalController(animalService)
 	return animalController
 }
 
 func NewLoginController() controller.LoginController {
-	userService := service.NewUserService()
-	profileRepository := db.NewProfileRepository()
+	connection := db.GetConnection()
+	userRepository := db.NewUserRepository(connection)
+	userService := service.NewUserService(userRepository)
+	profileRepository := db.NewProfileRepository(connection)
 	profileService := service.NewProfileService(profileRepository)
 	jwtService := service.NewJWTService()
 	loginService := service.NewLoginService(userService, profileService, jwtService)
@@ -34,36 +37,41 @@ func NewLoginController() controller.LoginController {
 }
 
 func NewProfileController() controller.ProfileController {
-	profileRepository := db.NewProfileRepository()
+	connection := db.GetConnection()
+	profileRepository := db.NewProfileRepository(connection)
 	profileService := service.NewProfileService(profileRepository)
 	profileController := controller.NewProfileController(profileService)
 	return profileController
 }
 
 func NewReferenceController() controller.ReferenceController {
-	referenceRepository := db.NewReferenceRepository()
+	connection := db.GetConnection()
+	referenceRepository := db.NewReferenceRepository(connection)
 	referenceService := service.NewReferenceService(referenceRepository)
 	referenceController := controller.NewReferenceController(referenceService)
 	return referenceController
 }
 
 func NewSpecialOfferController() controller.SpecialOfferController {
-	specialOfferRepository := db.NewSpecialOfferRepository()
+	connection := db.GetConnection()
+	specialOfferRepository := db.NewSpecialOfferRepository(connection)
 	specialOfferService := service.NewSpecialOfferService(specialOfferRepository)
 	specialOfferController := controller.NewSpecialOfferController(specialOfferService)
 	return specialOfferController
 }
 
 func NewChatController() controller.ChatController {
-	chatRepository := db.NewChatRepository()
+	connection := db.GetConnection()
+	chatRepository := db.NewChatRepository(connection)
 	chatService := service.NewChatService(chatRepository)
 	ticketService := service.NewTicketService()
-	chatController := controller.NewChatController(chatService, ticketService)
+	chatController := controller.NewChatController(chatService, ticketService, connection)
 	return chatController
 }
 
 func NewStickerController() controller.StickerController {
-	stickerRepository := db.NewStickerRepository()
+	connection := db.GetConnection()
+	stickerRepository := db.NewStickerRepository(connection)
 	stickerService := service.NewStickerService(stickerRepository)
 	stickerController := controller.NewStickerController(stickerService)
 	return stickerController

@@ -22,6 +22,6 @@ func main() {
 	specialOfferController := NewSpecialOfferController()
 	chatController := NewChatController()
 	stickerController := NewStickerController()
-	go controller.Hub.Run()
+	go chatController.GetHub().Run()
 	controller.Init(loginController, animalController, profileController, referenceController, specialOfferController, chatController, stickerController)
 }
