@@ -24,9 +24,9 @@ If there is problem with dependencies **go mod tidy** can help
 
 # Features and improvements
 
-+ Add DI framework
 + Make pet store an actual pet store, not just cat-store - e.g. add other animals
-+ Recheck JWT security
-+ Tests...
 + Swagger
-+ More things to come
++ Integration test for db (efficient one, not those that take eternity and do nothing)
++ Extract hash checking function
++ Refactor existing functions
++ Chat rooms between users

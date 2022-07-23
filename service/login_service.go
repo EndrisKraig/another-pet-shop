@@ -31,7 +31,8 @@ func (s *SimpleLoginService) LoginUser(user *dto.User) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("profile wasn't found: %w", err)
 	}
-	var isPasswordsEquals = checkPasswordHash(user.Password, dbUser.Hash)
+	//TODO check hash in dependency service
+	var isPasswordsEquals = true //checkPasswordHash(user.Password, dbUser.Hash)
 	if !isPasswordsEquals {
 		return "", fmt.Errorf("password not equals")
 	}
